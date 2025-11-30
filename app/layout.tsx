@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Nunito_Sans, Plus_Jakarta_Sans, Poppins } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/global/header";
+import Footer from "@/components/global/footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = Poppins({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["400"]
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const nunitoSans = Plus_Jakarta_Sans({
+  variable: "--font-nunito-sans",
   subsets: ["latin"],
+  weight: ["400"]
 });
 
 export const metadata: Metadata = {
@@ -25,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${dmSans.variable} ${nunitoSans.variable} antialiased`}
       >
+        <Header/>
         {children}
+        <Footer/>
       </body>
     </html>
   );
