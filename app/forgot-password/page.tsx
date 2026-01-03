@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
-import { resetPassword } from "@/lib/supabase/auth";
 import Image from "next/image";
+import { Mail, ArrowLeft, Globe } from "lucide-react";
+import { resetPassword } from "@/lib/supabase/auth";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -62,39 +60,64 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  // Success state (email sent)
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/20 via-primary/10 to-accent/10 p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-none shadow-xl bg-background rounded-2xl">
-            <CardHeader className="p-8 pb-6">
-              <div className="flex justify-center mb-6">
-                <Link href="/" className="flex items-center">
-                  <Image
-                    src="/logo.svg"
-                    alt="Resfolio Logo"
-                    width={120}
-                    height={32}
-                    priority
-                  />
-                </Link>
-              </div>
-              <CardTitle className="text-3xl text-center font-semibold mb-2">
-                Check Your Email
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-8 pb-8">
-              <div className="space-y-6">
-                <p className="text-center text-muted-foreground text-sm leading-relaxed">
+      <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute left-0 top-20 w-64 h-64 opacity-20">
+            <svg className="w-full h-full" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 100 Q50 50 100 100 T180 100" stroke="currentColor" strokeWidth="2" className="text-foreground"/>
+              <rect x="40" y="40" width="60" height="40" stroke="currentColor" strokeWidth="2" fill="none" className="text-foreground"/>
+            </svg>
+          </div>
+        </div>
+
+        <header className="relative z-10 w-full px-6 py-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo.svg" alt="Logo" width={120} height={32} priority />
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="#" className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
+                <Globe className="w-4 h-4" />
+                <span className="hidden sm:inline">Sales@Razor.uk</span>
+              </Link>
+              <Link href="/register" className="text-sm text-foreground hover:text-primary transition-colors">
+                Sign up
+              </Link>
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                Request Demo
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center px-4 py-12 relative z-10">
+          <div className="w-full max-w-md">
+            <div className="bg-card rounded-3xl shadow-lg border border-border p-8 md:p-10">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-foreground mb-2">Check Your Email</h1>
+                <p className="text-sm text-muted-foreground">
                   To verify your identity, you'll receive an email shortly at <strong className="text-foreground font-semibold">{email}</strong> to reset your password.
                 </p>
-                
+              </div>
+
+              <div className="space-y-4">
                 <Button
                   onClick={handleResendEmail}
                   disabled={resending}
-                  className="w-full h-12"
+                  className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                 >
-                  {resending ? 'Sending...' : 'Resend Email'}
+                  {resending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Resend Email'
+                  )}
                 </Button>
 
                 {resendSuccess && (
@@ -118,71 +141,83 @@ export default function ForgotPasswordPage() {
                   .
                 </p>
               </div>
-            </CardContent>
-          </Card>
-          <p className="text-xs text-center text-muted-foreground mt-6">
-            <Link href="/terms" className="text-primary hover:text-primary/80 underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary hover:text-primary/80 underline">Privacy Policy</Link> apply.
+            </div>
+          </div>
+        </main>
+
+        <footer className="relative z-10 w-full py-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            Copyright @wework 2022 | Privacy Policy
           </p>
-        </div>
+        </footer>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-card to-muted/20 p-4">
-      <section className="flex w-full max-w-2xl flex-col justify-center px-8 py-8 sm:px-12 lg:px-16">
-        
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
 
-        {/* Authentication Card */}
-        <Card className="border-none shadow-none bg-[#F7F5F3] rounded-md">
-          <CardHeader className="p-0 px-8 mb-2">
-            <CardTitle className="text-2xl text-center font-semibold">
-              Forgot Password?
-            </CardTitle>
-            <CardDescription className="mb-6 text-center text-muted-foreground">
-              No worries, we'll send you reset instructions.
-            </CardDescription>
-          </CardHeader>
+      {/* Main Content */}
+      <main className="flex-1 flex items-center justify-center px-4 py-12 relative z-10">
+        <div className="w-full max-w-md">
+          {/* Forgot Password Card */}
+          <div className="bg-card rounded-3xl shadow-lg border border-border p-8 md:p-10">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Forgot password?</h1>
+              <p className="text-sm text-muted-foreground">
+                No worries, we'll send you reset instructions
+              </p>
+            </div>
 
-          <CardContent className="p-0 px-8 ">
             {error && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="mb-6 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive text-center">{error}</p>
               </div>
             )}
-            
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Mail className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="email" className="mb-1 block text-xs font-medium text-foreground">
-                    Email Address
-                  </Label>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email Input */}
+              <div>
+                <Label htmlFor="email" className="text-xs font-medium text-foreground mb-2 block">
+                  Email Address
+                </Label>
+                <div className="relative">
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     placeholder="lilareem@gmail.com"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={isLoading}
                   />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
               </div>
 
+              {/* Send Reset Link Button */}
               <Button 
                 type="submit"
-                className="mb-4 w-full h-12"
+                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? 'Sending...' : 'Send reset link'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send reset link'
+                )}
               </Button>
             </form>
 
-            <div className="text-center">
+            {/* Back to Sign In Link */}
+            <div className="mt-6 text-center">
               <Link 
                 href="/login"
                 className="inline-flex items-center text-sm text-primary hover:text-primary/80 transition-colors"
@@ -192,7 +227,8 @@ export default function ForgotPasswordPage() {
               </Link>
             </div>
 
-            <div className="bg-muted/50 rounded-lg p-4 mt-4">
+            {/* Help Section */}
+            <div className="mt-6 bg-muted/50 rounded-xl p-4">
               <p className="text-xs text-muted-foreground text-center">
                 Need help? Explore our{" "}
                 <Link href="/learn" className="text-primary hover:text-primary/80 underline">
@@ -201,9 +237,9 @@ export default function ForgotPasswordPage() {
                 .
               </p>
             </div>
-          </CardContent>
-        </Card>
-      </section>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

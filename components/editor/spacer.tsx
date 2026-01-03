@@ -1,5 +1,6 @@
 import React from "react";
 import { Input } from "../ui/input";
+import { MetricInput } from "../ui/metric-input";
 import { BaseComponentData, ComponentData } from "@/lib/editor-state";
 
 interface SpacerComponentData extends BaseComponentData {
@@ -31,16 +32,23 @@ function Spacer({ data, isPreviewMode, onUpdate }: SpacerProps) {
   }
 
   return (
-    <div 
-      className="w-full flex items-center justify-center bg-[oklch(0.9600_0.008_30)]/30 border border-dashed border-[oklch(0.9200_0.005_20)] rounded-lg transition-all hover:bg-[oklch(0.9600_0.008_30)]"
-      style={{ 
-        height: data.height || '2rem',
-        minHeight: data.height || '2rem',
-      }}
-    >
-      <span className="text-[10px] text-[oklch(0.5200_0.015_25)] opacity-0 group-hover:opacity-100 transition-opacity select-none">
-        Spacer ({data.height || '2rem'})
-      </span>
+    <div className="space-y-3">
+      <div>
+        <label className="block text-xs font-medium text-foreground mb-2">Height</label>
+        <MetricInput
+          label=""
+          value={data.height || '2rem'}
+          onChange={(value) => handleHeightChange(value)}
+          placeholder="2rem"
+        />
+      </div>
+      <div 
+        className="w-full border border-dashed border-border/50 rounded"
+        style={{ 
+          height: data.height || '2rem',
+          minHeight: data.height || '2rem',
+        }}
+      />
     </div>
   );
 }

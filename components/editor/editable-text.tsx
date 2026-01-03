@@ -1,6 +1,13 @@
-import React from 'react';
+"use client";
+
+import React, { useRef, useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import { Button } from '../ui/button';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Bold, Italic, Underline } from 'lucide-react';
+import { AlignmentControl } from '../ui/alignment-control';
 import { TextComponentData, ComponentData } from '@/lib/editor-state';
 
 interface EditableTextProps {
@@ -15,89 +22,221 @@ const getAlignmentClass = (alignment?: 'left' | 'center' | 'right') => {
   return 'text-center';
 };
 
-const getAlignmentFlexClass = (alignment?: 'left' | 'center' | 'right') => {
-  if (alignment === 'left') return 'justify-start';
-  if (alignment === 'right') return 'justify-end';
-  return 'justify-center';
-};
-
 export function EditableHeader({ data, isPreviewMode, onUpdate }: EditableTextProps) {
-  const alignment = (data as any).alignment || 'left';
-  const headerLevel = (data as any).headerLevel || 'h2';
-  const fontSize = (data as any).fontSize || '2rem';
-  const fontWeight = (data as any).fontWeight || '700';
+  const alignment = data.alignment || 'left';
+  const fontSize = data.fontSize || '1.875rem'; // text-3xl default
+  const fontColor = data.fontColor || '#374151'; // text-gray-700
+  const fontWeight = data.fontWeight || 'bold';
+  const fontStyle = data.fontStyle || 'normal';
+  const textDecoration = data.textDecoration || 'none';
   
-  // Get design palette from CSS variables (set by editor)
-  const titleColor = typeof window !== 'undefined' 
-    ? getComputedStyle(document.documentElement).getPropertyValue('--palette-title').trim() || '#000000'
-    : '#000000';
-  
+  const contentEditableRef = useRef<HTMLHeadingElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const isUserTypingRef = useRef(false);
+
+  useEffect(() => {
+    // Only update textContent if:
+    // 1. Not in preview mode
+    // 2. Element exists
+    // 3. User is not currently typing (element doesn't have focus)
+    // 4. Content actually changed
+    if (contentEditableRef.current && !isPreviewMode && !isUserTypingRef.current) {
+      const currentContent = contentEditableRef.current.textContent || '';
+      const newContent = data.content || 'Section Header';
+      
+      // Only update if content is different (prevents infinite loop)
+      if (currentContent !== newContent) {
+        contentEditableRef.current.textContent = newContent;
+      }
+    }
+  }, [data.content, isPreviewMode]);
+
+  const handleContentChange = () => {
+    if (contentEditableRef.current) {
+      const newContent = contentEditableRef.current.textContent || '';
+      onUpdate({ ...data, content: newContent });
+    }
+  };
+
   if (isPreviewMode) {
-    const Tag = headerLevel as keyof JSX.IntrinsicElements;
-    const styles = (data as any).styles || {};
     return (
-      <Tag 
-        className={`font-bold ${getAlignmentClass(alignment)}`}
-        style={{ 
+      <h2 
+        className={`max-w-4xl mx-auto ${getAlignmentClass(alignment)}`}
+        style={{
           fontSize: fontSize,
+          color: fontColor,
           fontWeight: fontWeight,
-          color: styles.color || titleColor,
-          lineHeight: data.lineHeight || styles.lineHeight || undefined,
-          letterSpacing: data.letterSpacing || styles.letterSpacing || undefined,
-          textTransform: styles.textTransform || undefined,
+          fontStyle: fontStyle,
+          textDecoration: textDecoration,
         }}
       >
         {data.content || 'Section Header'}
-      </Tag>
+      </h2>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-4 pb-2 border-b">
-        <label className="text-sm font-medium">Alignment:</label>
-        <select
-          value={alignment}
-          onChange={(e) => onUpdate({ ...data, alignment: e.target.value as 'left' | 'center' | 'right' } as any)}
-          className="px-3 py-2 rounded-md border border-border bg-background text-sm"
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-        </select>
+    <div className="space-y-4">
+      {/* Formatting Controls - Vertical List Style */}
+      <div className="space-y-4 pt-4 border-t border-border">
+        {/* Text Formatting */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Text Formatting</Label>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={fontWeight === 'bold' ? 'default' : 'outline'}
+              onClick={() => {
+                const newWeight = fontWeight === 'bold' ? 'normal' : 'bold';
+                onUpdate({ ...data, fontWeight: newWeight });
+              }}
+              className="h-9 w-9 p-0"
+              title="Bold"
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={fontStyle === 'italic' ? 'default' : 'outline'}
+              onClick={() => {
+                const newStyle = fontStyle === 'italic' ? 'normal' : 'italic';
+                onUpdate({ ...data, fontStyle: newStyle });
+              }}
+              className="h-9 w-9 p-0"
+              title="Italic"
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={textDecoration === 'underline' ? 'default' : 'outline'}
+              onClick={() => {
+                const newDecoration = textDecoration === 'underline' ? 'none' : 'underline';
+                onUpdate({ ...data, textDecoration: newDecoration });
+              }}
+              className="h-9 w-9 p-0"
+              title="Underline"
+            >
+              <Underline className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Font Size */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Font Size</Label>
+          <Select
+            value={fontSize}
+            onValueChange={(value) => onUpdate({ ...data, fontSize: value })}
+          >
+            <SelectTrigger className="h-9 w-full text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0.75rem">Small (12px)</SelectItem>
+              <SelectItem value="0.875rem">Base (14px)</SelectItem>
+              <SelectItem value="1rem">Large (16px)</SelectItem>
+              <SelectItem value="1.125rem">XL (18px)</SelectItem>
+              <SelectItem value="1.25rem">2XL (20px)</SelectItem>
+              <SelectItem value="1.5rem">3XL (24px)</SelectItem>
+              <SelectItem value="1.875rem">4XL (30px)</SelectItem>
+              <SelectItem value="2.25rem">5XL (36px)</SelectItem>
+              <SelectItem value="3rem">6XL (48px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Alignment */}
+        <div className="space-y-2">
+          <AlignmentControl
+            value={alignment}
+            onChange={(value) => onUpdate({ ...data, alignment: value as 'left' | 'center' | 'right' })}
+            label="Alignment"
+          />
+        </div>
       </div>
-      <Input
-        className="text-3xl font-bold h-14 border-0 focus:ring-0 focus:border-0 w-full focus:outline-none bg-transparent"
-        placeholder="Section Header"
-        value={data.content}
-        onChange={(e) => onUpdate({ ...data, content: e.target.value })}
+
+      {/* Editable Content */}
+      <h2
+        ref={contentEditableRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleContentChange}
+        onBlur={handleContentChange}
+        className={`outline-none focus:ring-2 focus:ring-primary/20 rounded px-2 py-1 min-h-[3rem] ${getAlignmentClass(alignment)}`}
+        style={{
+          fontSize: fontSize,
+          color: fontColor,
+          fontWeight: fontWeight,
+          fontStyle: fontStyle,
+          textDecoration: textDecoration,
+        }}
+        onFocus={() => {
+          setIsEditing(true);
+          isUserTypingRef.current = true;
+        }}
+        onBlur={() => {
+          setIsEditing(false);
+          // Small delay to ensure blur event completes
+          setTimeout(() => {
+            isUserTypingRef.current = false;
+          }, 100);
+        }}
       />
     </div>
   );
 }
 
 export function EditableText({ data, isPreviewMode, onUpdate }: EditableTextProps) {
-  const alignment = (data as any).alignment || 'left';
+  const alignment = data.alignment || 'left';
+  const fontSize = data.fontSize || '0.875rem'; // text-sm default
+  const fontColor = data.fontColor || '#374151'; // text-gray-700
+  const fontWeight = data.fontWeight || 'normal';
+  const fontStyle = data.fontStyle || 'normal';
+  const textDecoration = data.textDecoration || 'none';
   
-  // Get design palette from CSS variables
-  const descriptionColor = typeof window !== 'undefined' 
-    ? getComputedStyle(document.documentElement).getPropertyValue('--palette-description').trim() || '#4b5563'
-    : '#4b5563';
-  
+  const contentEditableRef = useRef<HTMLParagraphElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const isUserTypingRef = useRef(false);
+
+  useEffect(() => {
+    // Only update textContent if:
+    // 1. Not in preview mode
+    // 2. Element exists
+    // 3. User is not currently typing (element doesn't have focus)
+    // 4. Content actually changed
+    if (contentEditableRef.current && !isPreviewMode && !isUserTypingRef.current) {
+      const currentContent = contentEditableRef.current.textContent || '';
+      const newContent = data.content || '';
+      
+      // Only update if content is different (prevents infinite loop)
+      if (currentContent !== newContent) {
+        contentEditableRef.current.textContent = newContent;
+      }
+    }
+  }, [data.content, isPreviewMode]);
+
+  const handleContentChange = () => {
+    if (contentEditableRef.current) {
+      const newContent = contentEditableRef.current.textContent || '';
+      onUpdate({ ...data, content: newContent });
+    }
+  };
+
   if (isPreviewMode) {
-    const styles = (data as any).styles || {};
     return (
-      <div className="w-full">
+      <div className="max-w-4xl mx-auto">
         <p 
-          className={`text-sm whitespace-pre-wrap ${getAlignmentClass(alignment)}`}
+          className={`whitespace-pre-wrap leading-relaxed ${getAlignmentClass(alignment)}`}
           style={{
-            color: styles.color || descriptionColor,
-            fontSize: data.fontSize || styles.fontSize || undefined,
-            fontWeight: data.fontWeight || styles.fontWeight || undefined,
-            lineHeight: data.lineHeight || styles.lineHeight || undefined,
-            letterSpacing: data.letterSpacing || styles.letterSpacing || undefined,
-            textTransform: styles.textTransform || undefined,
-            maxWidth: styles.maxWidth || undefined,
+            fontSize: fontSize,
+            color: fontColor,
+            fontWeight: fontWeight,
+            fontStyle: fontStyle,
+            textDecoration: textDecoration,
           }}
         >
           {data.content || ''}
@@ -107,31 +246,116 @@ export function EditableText({ data, isPreviewMode, onUpdate }: EditableTextProp
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-4 pb-2 border-b">
-        <label className="text-sm font-medium">Alignment:</label>
-        <select
-          value={alignment}
-          onChange={(e) => onUpdate({ ...data, alignment: e.target.value as 'left' | 'center' | 'right' } as any)}
-          className="px-3 py-2 rounded-md border border-border bg-background text-sm"
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-        </select>
+    <div className="space-y-4">
+      {/* Formatting Controls - Vertical List Style */}
+      <div className="space-y-4 pt-4 border-t border-border">
+        {/* Text Formatting */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Text Formatting</Label>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={fontWeight === 'bold' ? 'default' : 'outline'}
+              onClick={() => {
+                const newWeight = fontWeight === 'bold' ? 'normal' : 'bold';
+                onUpdate({ ...data, fontWeight: newWeight });
+              }}
+              className="h-9 w-9 p-0"
+              title="Bold"
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={fontStyle === 'italic' ? 'default' : 'outline'}
+              onClick={() => {
+                const newStyle = fontStyle === 'italic' ? 'normal' : 'italic';
+                onUpdate({ ...data, fontStyle: newStyle });
+              }}
+              className="h-9 w-9 p-0"
+              title="Italic"
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={textDecoration === 'underline' ? 'default' : 'outline'}
+              onClick={() => {
+                const newDecoration = textDecoration === 'underline' ? 'none' : 'underline';
+                onUpdate({ ...data, textDecoration: newDecoration });
+              }}
+              className="h-9 w-9 p-0"
+              title="Underline"
+            >
+              <Underline className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Font Size */}
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">Font Size</Label>
+          <Select
+            value={fontSize}
+            onValueChange={(value) => onUpdate({ ...data, fontSize: value })}
+          >
+            <SelectTrigger className="h-9 w-full text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0.75rem">Small (12px)</SelectItem>
+              <SelectItem value="0.875rem">Base (14px)</SelectItem>
+              <SelectItem value="1rem">Large (16px)</SelectItem>
+              <SelectItem value="1.125rem">XL (18px)</SelectItem>
+              <SelectItem value="1.25rem">2XL (20px)</SelectItem>
+              <SelectItem value="1.5rem">3XL (24px)</SelectItem>
+              <SelectItem value="1.875rem">4XL (30px)</SelectItem>
+              <SelectItem value="2.25rem">5XL (36px)</SelectItem>
+              <SelectItem value="3rem">6XL (48px)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Alignment */}
+        <div className="space-y-2">
+          <AlignmentControl
+            value={alignment}
+            onChange={(value) => onUpdate({ ...data, alignment: value as 'left' | 'center' | 'right' })}
+            label="Alignment"
+          />
+        </div>
       </div>
-      <Textarea
-        className="text-base w-full resize-none min-h-[100px] border-0 focus:ring-0 focus:border-0 focus:outline-none bg-transparent"
-        placeholder="Enter your text here..."
-        value={data.content}
-        onChange={(e) => onUpdate({ ...data, content: e.target.value })}
+
+      {/* Editable Content */}
+      <p
+        ref={contentEditableRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleContentChange}
+        onBlur={handleContentChange}
+        className={`outline-none focus:ring-2 focus:ring-primary/20 rounded px-2 py-1 min-h-[100px] whitespace-pre-wrap leading-relaxed ${getAlignmentClass(alignment)}`}
+        style={{
+          fontSize: fontSize,
+          color: fontColor,
+          fontWeight: fontWeight,
+          fontStyle: fontStyle,
+          textDecoration: textDecoration,
+        }}
+        onFocus={() => {
+          setIsEditing(true);
+          isUserTypingRef.current = true;
+        }}
+        onBlur={() => {
+          setIsEditing(false);
+          // Small delay to ensure blur event completes
+          setTimeout(() => {
+            isUserTypingRef.current = false;
+          }, 100);
+        }}
       />
     </div>
   );
 }
-
-
-
-
-
-

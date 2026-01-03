@@ -1,10 +1,10 @@
 import { ComponentData, DesignPalette } from '../editor-state';
-import { SEOSettings } from '../components/editor/seo-settings';
+import { SEOSettings } from '@/components/editor/seo-settings';
 
 export interface Website {
   id: string;
   user_id: string;
-  name: string;
+  title: string; // Changed from name to title
   slug: string; // Unique subdomain identifier
   domain: string; // Full domain like "johndoe.website.ai"
   status: 'draft' | 'published';
@@ -21,7 +21,7 @@ export interface Website {
 
 export interface WebsiteInsert {
   user_id: string;
-  name: string;
+  title: string; // Changed from name to title
   slug: string;
   domain: string;
   status?: 'draft' | 'published';
@@ -33,7 +33,7 @@ export interface WebsiteInsert {
 }
 
 export interface WebsiteUpdate {
-  name?: string;
+  title?: string; // Changed from name to title
   status?: 'draft' | 'published';
   components?: ComponentData[];
   design_palette?: DesignPalette;

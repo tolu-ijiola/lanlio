@@ -13,13 +13,15 @@ export default function DashboardLayout({ children }: AppClientWrapperProps) {
     <SidebarProvider>
       <div className="min-h-screen bg-background flex flex-col">
         <Header/>
-        <div className="flex flex-1">
+        <div className="flex flex-1 min-w-0">
           {/* Desktop Sidebar - Always visible, icon only */}
-          <div className="hidden md:flex ">
+          <div className="hidden md:flex flex-col justify-center items-center shrink-0">
             <AppSidebar />
           </div>
-          <main className="flex-1 ml-28 w-full overflow-x-hidden">
-            {children}
+          <main className="flex-1 md:ml-28 w-full min-w-0">
+            <div className="w-full px-4 py-8">
+              {children}
+            </div>
           </main>
         </div>
       </div>

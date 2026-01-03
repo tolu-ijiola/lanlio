@@ -86,7 +86,7 @@ export const ProfessionalsCard = ({
         {items.map((item, idx) => (
           <li
             className="relative w-fit max-w-full rounded-full shrink-0 bg-[linear-gradient(180deg,#fafafa,#f5f5f5)] px-4 py-1.5 dark:bg-[linear-gradient(180deg,#27272a,#18181b)]"
-            key={item.title}
+            key={`${item.title}-${idx}`}
           >
             <blockquote className=" text-primary text-sm">
             {item.title}

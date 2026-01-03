@@ -72,73 +72,51 @@ function Languages({ data, isPreviewMode, onUpdate }: LanguagesProps) {
     );
   }
 
+  // Canvas mode - show clean content only
+  if (data.languages.length === 0) return null;
+  
+  const styles = (data as any).styles || {};
+  const gap = (data as any).gap || '8px';
+  const textColor = styles.color || 'var(--palette-title)';
+  const backgroundColor = styles.backgroundColor || '#ffffff';
+  const borderColor = styles.borderColor || '#e5e7eb';
+  const borderRadius = styles.borderRadius || '24px';
+  const borderWidth = styles.borderWidth || '1px';
+  const padding = styles.padding || '8px 16px';
+  const variant = (data as any).variant || 'pill';
+  const direction = (data as any).direction || 'horizontal';
+  
+  // Variant styles
+  let variantStyles: any = {};
+  if (variant === 'badge') {
+    variantStyles = { borderRadius: '8px', padding: '6px 12px' };
+  } else if (variant === 'minimal') {
+    variantStyles = { backgroundColor: 'transparent', borderWidth: '0px' };
+  }
+  
+  const containerClass = direction === 'vertical' ? 'flex flex-col' : 'flex flex-wrap';
+  
   return (
-    <div className='space-y-4'>
-      <div className="flex gap-2">
-        <Input
-          className="h-12 block border-0 focus:ring-0 focus:border-0 flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
-          placeholder="Language name"
-          value={newLanguage.name}
-          onChange={(e) => setNewLanguage({ ...newLanguage, name: e.target.value })}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddLanguage();
-            }
+    <div className={containerClass} style={{ gap }}>
+      {data.languages.map((lang, index) => (
+        <div 
+          key={index} 
+          className='font-medium transition-all duration-300 hover:scale-105'
+          style={{
+            backgroundColor: variantStyles.backgroundColor || backgroundColor,
+            color: textColor,
+            borderRadius: variantStyles.borderRadius || borderRadius,
+            borderColor: borderColor,
+            borderWidth: variantStyles.borderWidth || borderWidth,
+            borderStyle: 'solid',
+            padding: variantStyles.padding || padding,
           }}
-        />
-        <select
-          value={newLanguage.level}
-          onChange={(e) => setNewLanguage({ ...newLanguage, level: e.target.value })}
-          className="px-3 py-2 rounded-md border border-border bg-background"
         >
-          <option value="Fluent">Fluent</option>
-          <option value="Advanced">Advanced</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Basic">Basic</option>
-        </select>
-        <Button onClick={handleAddLanguage} disabled={!newLanguage.name.trim()}>
-          Add
-        </Button>
-      </div>
-      
-      {data.languages.length > 0 && (
-        <div className='flex flex-wrap gap-2'>
-          {data.languages.map((lang, index) => (
-            <div key={index} className='rounded-full px-4 py-2 flex items-center gap-2 group font-medium border bg-muted'>
-              <span className='text-muted-foreground'>
-                {lang.name}
-                {lang.level && (
-                  <>
-                    {' '}
-                    <select
-                      value={lang.level}
-                      onChange={(e) => handleUpdateLevel(index, e.target.value)}
-                      className="text-xs bg-transparent border-0 focus:ring-0 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <option value="Fluent">Fluent</option>
-                      <option value="Advanced">Advanced</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Basic">Basic</option>
-                    </select>
-                  </>
-                )}
-              </span>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleRemoveLanguage(index)}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+          {lang.name} {lang.level && <span className="text-xs opacity-70">({lang.level})</span>}
         </div>
-      )}
+      ))}
     </div>
-  )
+  );
 }
 
 export default Languages

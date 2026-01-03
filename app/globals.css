@@ -86,7 +86,7 @@
   --secondary-foreground: oklch(0.3000 0.02 20);
   --muted: oklch(0.9600 0.008 30); /* Warm neutral gray */
   --muted-foreground: oklch(0.5200 0.015 25); /* Medium warm gray */
-  --accent: oklch(0.6500 0.18 190); /* Teal accent (complementary to coral) */
+  --accent: oklch(0.6500 0.22 25); /* Coral accent (matches primary) */
   --accent-foreground: oklch(1.0000 0 0);
   --destructive: oklch(0.5500 0.26 15); /* Deep red */
   --destructive-foreground: oklch(1.0000 0 0);
@@ -94,7 +94,7 @@
   --input: oklch(0.9400 0.005 20);
   --ring: oklch(0.6500 0.22 25); /* Matches primary for focus states */
   --chart-1: oklch(0.6500 0.22 25); /* Coral */
-  --chart-2: oklch(0.6500 0.18 190); /* Teal */
+  --chart-2: oklch(0.6500 0.22 25); /* Coral (matches primary) */
   --chart-3: oklch(0.6800 0.18 50); /* Warm gold */
   --chart-4: oklch(0.6200 0.20 340); /* Rose */
   --chart-5: oklch(0.6500 0.16 160); /* Sage green */
@@ -141,7 +141,7 @@
   --secondary-foreground: oklch(0.9700 0.008 25);
   --muted: oklch(0.2800 0.01 30);
   --muted-foreground: oklch(0.6800 0.015 25);
-  --accent: oklch(0.6800 0.18 190); /* Teal accent */
+  --accent: oklch(0.6800 0.22 25); /* Coral accent (matches primary) */
   --accent-foreground: oklch(0.1000 0 0);
   --destructive: oklch(0.6200 0.26 15);
   --destructive-foreground: oklch(0.9700 0.008 25);
@@ -149,7 +149,7 @@
   --input: oklch(0.3200 0.012 20);
   --ring: oklch(0.6800 0.22 25);
   --chart-1: oklch(0.6800 0.22 25);
-  --chart-2: oklch(0.6800 0.18 190);
+  --chart-2: oklch(0.6800 0.22 25); /* Coral (matches primary) */
   --chart-3: oklch(0.7000 0.18 50);
   --chart-4: oklch(0.6500 0.20 340);
   --chart-5: oklch(0.6800 0.16 160);
@@ -185,6 +185,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  body {
+    @apply bg-background text-foreground;
+  }
   body, a, button, input, select, textarea {
     font-family: var(--font-nunito-sans);
   }
@@ -198,5 +201,19 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Fix nextjs-portal - hide the container but allow children to position correctly */
+  nextjs-portal {
+    position: fixed !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Allow portal children to receive pointer events and position correctly */
+  nextjs-portal > * {
+    pointer-events: auto !important;
   }
 }

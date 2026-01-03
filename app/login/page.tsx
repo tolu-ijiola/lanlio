@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Loader2, Globe } from "lucide-react";
 import { signInWithEmail, signInWithOAuth } from "@/lib/supabase/auth";
 
 export default function LoginPage() {
@@ -19,24 +17,36 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    
+
     try {
       const { data, error: signInError } = await signInWithEmail(email, password);
-      
+
       if (signInError) {
-        setError(signInError.message || "Failed to sign in. Please check your credentials.");
+        setError(signInError.message || "Invalid email or password. Please try again.");
         setLoading(false);
         return;
       }
 
-      if (data?.user) {
-        // Redirect to dashboard on successful login
-        router.push("/dashboard");
-        router.refresh();
+      // Success - redirect to dashboard
+      router.push("/dashboard");
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const { error: oauthError } = await signInWithOAuth("google");
+      if (oauthError) {
+        setError(oauthError.message || "Failed to sign in with Google");
+        setLoading(false);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -44,165 +54,181 @@ export default function LoginPage() {
     }
   };
 
-  const handleForgotPassword = () => {
-    router.push("/forgot-password");
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    try {
-      const { error: oauthError } = await signInWithOAuth('google');
-      if (oauthError) {
-        setError(oauthError.message || "Failed to sign in with Google.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    }
-  };
-
   const handleLinkedInSignIn = async () => {
     setError(null);
+    setLoading(true);
     try {
-      const { error: oauthError } = await signInWithOAuth('linkedin');
+      const { error: oauthError } = await signInWithOAuth("linkedin");
       if (oauthError) {
-        setError(oauthError.message || "Failed to sign in with LinkedIn.");
+        setError(oauthError.message || "Failed to sign in with LinkedIn");
+        setLoading(false);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-muted/20 p-4">
-      <section className="flex w-full max-w-2xl flex-col justify-center px-8 py-8 sm:px-12 lg:px-16">
-        
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+      
 
-        {/* Authentication Tabs */}
-        <Card className="border-none shadow-none bg-[#F7F5F3] rounded-md">
-          <CardHeader className="p-0 px-8 mb-2">
-            <CardTitle className="text-2xl text-center font-semibold">
-              Welcome Back
-            </CardTitle>
-            <CardDescription className="mb-6 text-center text-muted-foreground">
-              Please enter your details.
-            </CardDescription>
-            
-          </CardHeader>
+      <main className="flex-1 flex items-center justify-center px-4 py-12 relative z-10">
+        <div className="w-full max-w-md">
+          {/* Login Card */}
+          <div className="bg-card rounded-3xl shadow-lg border border-border p-8 md:p-10">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
+              <p className="text-sm text-muted-foreground">
+                Sign in to your account to continue
+              </p>
+            </div>
 
-          <CardContent className="p-0 px-8 ">
             {error && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="mb-6 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive text-center">{error}</p>
               </div>
             )}
-            
-            <form onSubmit={handleSignIn}>
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Mail className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="signin-email" className="mb-1 block text-xs font-medium text-foreground">
-                    Email Address
-                  </Label>
+
+            {/* Social Login Buttons */}
+            <div className="space-y-3 mb-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="h-12 rounded-xl border-border hover:bg-muted flex items-center justify-center gap-2 hover:text-foreground w-full"
+              >
+                <Image src="/icon/google.png" alt="Google" width={20} height={20} />
+                <span className="text-sm font-medium">Google</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleLinkedInSignIn}
+                disabled={loading}
+                className="h-12 rounded-xl border-border hover:bg-muted flex items-center justify-center gap-2 hover:text-foreground w-full"
+              >
+                <Image src="/icon/linkedin.png" alt="LinkedIn" width={20} height={20} />
+                <span className="text-sm font-medium">LinkedIn</span>
+              </Button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Email Input */}
+              <div>
+                <Label htmlFor="email" className="text-xs font-medium text-foreground mb-2 block">
+                  Email Address
+                </Label>
+                <div className="relative">
                   <Input
-                    id="signin-email"
-                    placeholder="lilareem@gmail.com"
+                    id="email"
+                    name="email"
                     type="email"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    placeholder="lilareem@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={loading}
                   />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Lock className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="signin-password" className="mb-1 block text-xs font-medium text-foreground">
+              {/* Password Input */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="password" className="text-xs font-medium text-foreground">
                     Password
                   </Label>
+                  <Link 
+                    href="/forgot-password"
+                    className="text-xs text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
                   <Input
-                    id="signin-password"
-                    placeholder="********"
+                    id="password"
+                    name="password"
                     type="password"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={loading}
                   />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end mb-4">
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
-                  disabled={loading}
-                >
-                  Forgot Password?
-                </button>
-              </div>
-
+              {/* Sign In Button */}
               <Button 
                 type="submit"
-                className="mb-4 w-full h-12"
+                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                 disabled={loading}
               >
-                {loading ? 'Signing in...' : 'Continue'}
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
               </Button>
             </form>
 
-            <div className="flex justify-center mx-auto items-center gap-2">
-              <Separator className="w-[20px] h-1 bg-border" />
-              <p className="text-xs text-muted-foreground uppercase">OR</p>
-              <Separator className="w-[20px] h-1 bg-border" />
+            {/* Sign Up Link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link 
+                  href="/register"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  Sign up
+                </Link>
+              </p>
             </div>
 
-            {/* Social Logins */}
-            <div className="my-4 flex items-center justify-center space-x-6">
-              <Button
-                size={'icon'}
-                variant={'outline'}
-                className="bg-background rounded-full border-border h-12 w-12 hover:bg-muted transition-colors"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-              >
-                <Image 
-                  src="/icon/google.png" 
-                  alt="Google Sign In" 
-                  width={20} 
-                  height={20}
-                  priority 
-                />
-              </Button>
-              <Button
-                size={'icon'}
-                variant={'outline'}
-                className="bg-background rounded-full border-border h-12 w-12 hover:bg-muted transition-colors"
-                onClick={handleLinkedInSignIn}
-                disabled={loading}
-              >
-                <Image 
-                  src="/icon/linkedin.png" 
-                  alt="LinkedIn Sign In" 
-                  width={24} 
-                  height={24}
-                  priority 
-                />
-              </Button>
+            {/* Help Section */}
+            <div className="mt-6 bg-muted/50 rounded-xl p-4">
+              <p className="text-xs text-muted-foreground text-center">
+                Need help? Explore our{" "}
+                <Link href="/learn" className="text-primary hover:text-primary/80 underline">
+                  Learn hub
+                </Link>
+                .
+              </p>
             </div>
-<div className="my-12 text-center text-sm"> Don't have an account? <Link href="/register" className="text-primary hover:text-primary/80 underline">Sign up</Link></div>
-            <p className="text-xs max-w-sm mx-auto text-center text-muted-foreground">
-              Join the hundreds of developers to create their portfolio. 
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+          </div>
+        </div>
+      </main>
+
+      <footer className="relative z-10 w-full py-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Copyright @wework 2022 | Privacy Policy
+        </p>
+      </footer>
     </div>
   );
 }

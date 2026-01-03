@@ -171,7 +171,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-muted/20 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <section className="flex w-full max-w-2xl flex-col justify-center px-8 py-8 sm:px-12 lg:px-16">
         <Card className="border-none shadow-none bg-[#F7F5F3] rounded-md">
           <CardHeader className="p-0 px-8 mb-2">
@@ -254,6 +254,28 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

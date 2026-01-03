@@ -63,48 +63,50 @@ function Tools({ data, isPreviewMode, onUpdate }: ToolsProps) {
     );
   }
 
+  // Canvas mode - show clean content only
+  if (data.tools.length === 0) return null;
+  
+  const styles = (data as any).styles || {};
+  const gap = (data as any).gap || '8px';
+  const textColor = styles.color || 'var(--palette-title)';
+  const backgroundColor = styles.backgroundColor || '#ffffff';
+  const borderColor = styles.borderColor || '#e5e7eb';
+  const borderRadius = styles.borderRadius || '24px';
+  const borderWidth = styles.borderWidth || '1px';
+  const padding = styles.padding || '8px 20px';
+  const variant = (data as any).variant || 'pill';
+  
+  // Variant styles
+  let variantStyles: any = {};
+  if (variant === 'badge') {
+    variantStyles = { borderRadius: '8px', padding: '6px 12px' };
+  } else if (variant === 'minimal') {
+    variantStyles = { backgroundColor: 'transparent', borderWidth: '0px' };
+  } else if (variant === 'outlined') {
+    variantStyles = { backgroundColor: 'transparent', borderWidth: '2px' };
+  }
+  
   return (
-    <div className='space-y-4'>
-      <div className="flex gap-2">
-        <Input
-          className="h-12 block border-0 focus:ring-0 focus:border-0 w-full focus-visible:ring-0 focus-visible:ring-offset-0"
-          placeholder="Add your tools"
-          value={newTool}
-          onChange={(e) => setNewTool(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAddTool();
-            }
+    <div className='flex flex-wrap' style={{ gap }}>
+      {data.tools.map((tool, index) => (
+        <div 
+          key={index} 
+          className='font-medium transition-all duration-300 hover:scale-105'
+          style={{ 
+            backgroundColor: variantStyles.backgroundColor || backgroundColor,
+            color: textColor,
+            borderRadius: variantStyles.borderRadius || borderRadius,
+            borderColor: borderColor,
+            borderWidth: variantStyles.borderWidth || borderWidth,
+            borderStyle: 'solid',
+            padding: variantStyles.padding || padding,
           }}
-        />
-        <Button onClick={handleAddTool} disabled={!newTool.trim()}>
-          Add
-        </Button>
-      </div>
-      
-      {data.tools.length > 0 && (
-        <div className='flex flex-wrap gap-2'>
-          {data.tools.map((tool, index) => (
-            <div 
-              key={index} 
-              className='rounded-full px-4 py-2 flex items-center gap-2 group font-medium border bg-muted'
-            >
-              <p>{tool}</p>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleRemoveTool(index)}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+        >
+          {tool}
         </div>
-      )}
+      ))}
     </div>
-  )
+  );
 }
 
 export default Tools

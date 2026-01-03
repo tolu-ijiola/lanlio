@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { DM_Sans, Nunito_Sans, Plus_Jakarta_Sans, Poppins } from "next/font/google";
+import { DM_Sans, Nunito_Sans, Plus_Jakarta_Sans, Poppins, Urbanist } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/global/header";
 import Footer from "@/components/global/footer";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const dmSans = Poppins({
+const dmSans = Urbanist({
   variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400"]
 });
 
-const nunitoSans = Plus_Jakarta_Sans({
+const nunitoSans = Urbanist({
   variable: "--font-nunito-sans",
   subsets: ["latin"],
-  weight: ["400"]
+  weight: ["400", "500", "600", "700"]
 });
 
 export const metadata: Metadata = {
@@ -27,13 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${dmSans.variable} ${nunitoSans.variable} antialiased`}
+        className={`${dmSans.variable} ${nunitoSans.variable} antialiased bg-background text-foreground`}
       >
-        <Header/>
-        {children}
-        <Footer/>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header/>
+          {children}
+          <Footer/>
+        </ThemeProvider>
       </body>
     </html>
   );

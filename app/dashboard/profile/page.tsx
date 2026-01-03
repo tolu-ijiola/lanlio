@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,12 +34,20 @@ import {
   Bell,
   ChevronDown,
   Settings,
-  LogOut
+  LogOut,
+  Download,
+  Trash2,
+  FileText
 } from "lucide-react";
 import Image from "next/image";
+import { getResumes, uploadResumeFile, deleteResume, createResume, type ResumeData } from "@/lib/supabase/resumes";
+import { getCurrentUserId } from "@/lib/supabase/auth";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [resumes, setResumes] = useState<ResumeData[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [openAICredits, setOpenAICredits] = useState<number | null>(null);
   
   // Mock data - replace with actual data
   const profileData = {
@@ -56,9 +64,120 @@ export default function ProfilePage() {
     availability: true,
   };
 
-  const websites: Array<{ name: string; url: string }> = [
-    // Empty for now - will show resume upload if empty
-  ];
+  // Fetch resumes on component mount
+  useEffect(() => {
+    loadResumes();
+    loadOpenAICredits();
+  }, []);
+
+  const loadResumes = async () => {
+    try {
+      const data = await getResumes();
+      setResumes(data);
+    } catch (error) {
+      console.error("Error loading resumes:", error);
+    }
+  };
+
+  const loadOpenAICredits = async () => {
+    // Mock OpenAI credits - replace with actual API call
+    // For now, we'll use a placeholder value
+    setOpenAICredits(1000);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const validExtensions = ['.pdf', '.docx', '.txt'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+      alert('Please upload a PDF, DOCX, or TXT file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        alert('Please log in to upload a resume');
+        return;
+      }
+
+      // Upload file to storage
+      const fileUrl = await uploadResumeFile(file, userId);
+      if (!fileUrl) {
+        alert('Failed to upload resume file');
+        return;
+      }
+
+      // Create resume record (simplified - just store file URL and name)
+      // In a real app, you might want to parse the resume here
+      const resumeData: Omit<ResumeData, 'id' | 'user_id' | 'created_at' | 'updated_at'> = {
+        name: file.name,
+        full_name: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+        email: "",
+        phone: "",
+        job_title: "",
+        experience: "",
+        location: "",
+        bio: "",
+        skills: [],
+        education: "",
+        work_history: "",
+        file_url: fileUrl,
+      };
+
+      // Create resume record
+      const newResume = await createResume(resumeData);
+      
+      if (newResume) {
+        await loadResumes();
+        alert('Resume uploaded successfully!');
+      } else {
+        alert('Failed to save resume');
+      }
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      alert('Error uploading resume. Please try again.');
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
+  const handleDeleteResume = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this resume?')) {
+      return;
+    }
+
+    try {
+      const success = await deleteResume(id);
+      if (success) {
+        await loadResumes();
+      } else {
+        alert('Failed to delete resume');
+      }
+    } catch (error) {
+      console.error("Error deleting resume:", error);
+      alert('Error deleting resume. Please try again.');
+    }
+  };
+
+  const handleDownloadResume = (fileUrl: string, fileName: string) => {
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,6 +326,27 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* OpenAI Credits Section */}
+            <div className="bg-gradient-to-br from-background via-background to-muted/20 rounded-3xl shadow-xl border border-border/50 p-1 backdrop-blur-sm">
+              <div className="bg-background rounded-[22px] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">OpenAI Credits</h2>
+                    <p className="text-xs text-muted-foreground">Your available API credits</p>
+                  </div>
+                  <Sparkles className="size-5 text-primary" />
+                </div>
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-foreground">
+                      {openAICredits !== null ? openAICredits.toLocaleString() : '---'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">Available Credits</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Column - Details & Websites */}
@@ -339,48 +479,77 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* My Websites Section */}
-            {websites.length > 0 ? (
-              <div className="bg-gradient-to-br from-background via-background to-muted/20 rounded-3xl shadow-xl border border-border/50 p-1 backdrop-blur-sm">
-                <div className="bg-background rounded-[22px] p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-semibold text-foreground">My Websites</h2>
-                    <Button size="sm" className="gap-2">
-                      <Plus className="size-4" />
-                      New Website
+            {/* My Resumes Section */}
+            <div className="bg-gradient-to-br from-background via-background to-muted/20 rounded-3xl shadow-xl border border-border/50 p-1 backdrop-blur-sm">
+              <div className="bg-background rounded-[22px] p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-foreground">My Resumes</h2>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="resume-upload"
+                    />
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      disabled={isUploading}
+                      asChild
+                    >
+                      <label htmlFor="resume-upload" className="cursor-pointer">
+                        <Upload className="size-4" />
+                        {isUploading ? "Uploading..." : "Upload Resume"}
+                      </label>
                     </Button>
                   </div>
+                </div>
+                {resumes.length > 0 ? (
                   <div className="space-y-3">
-                    {websites.map((website, idx) => (
+                    {resumes.map((resume) => (
                       <div
-                        key={idx}
+                        key={resume.id}
                         className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-muted/30 transition-colors group"
                       >
                         <div className="flex items-center gap-4">
                           <div className="size-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
-                            <Globe className="size-6 text-primary" />
+                            <FileText className="size-6 text-primary" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">{website.name}</p>
-                            <p className="text-xs text-muted-foreground">{website.url}</p>
+                            <p className="font-semibold text-foreground">{resume.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {resume.created_at ? new Date(resume.created_at).toLocaleDateString() : 'Unknown date'}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-                            <ExternalLink className="size-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-                            <Edit className="size-4" />
+                          {resume.file_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 rounded-full"
+                              onClick={() => handleDownloadResume(resume.file_url!, resume.name)}
+                              title="Download Resume"
+                            >
+                              <Download className="size-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => resume.id && handleDeleteResume(resume.id)}
+                            title="Delete Resume"
+                          >
+                            <Trash2 className="size-4" />
                           </Button>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-gradient-to-br from-background via-background to-muted/20 rounded-3xl shadow-xl border border-border/50 p-1 backdrop-blur-sm">
-                <div className="bg-background rounded-[22px] p-10">
+                ) : (
                   <div className="border-2 border-dashed border-primary/20 hover:border-primary/40 rounded-2xl p-12 transition-all duration-300 hover:bg-primary/5 group">
                     <div className="flex flex-col items-center justify-center space-y-6">
                       <div className="relative">
@@ -391,34 +560,39 @@ export default function ProfilePage() {
                       </div>
                       <div className="text-center space-y-2">
                         <h4 className="text-xl font-semibold text-foreground">
-                          No websites yet
+                          No resumes yet
                         </h4>
                         <p className="text-sm text-muted-foreground max-w-md">
-                          Upload your resume to create your first portfolio website, or use AI to generate one from scratch.
+                          Upload your resume to get started.
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept=".pdf,.docx,.txt"
+                          onChange={handleFileUpload}
+                          disabled={isUploading}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          id="resume-upload-empty"
+                        />
                         <Button
                           variant="outline"
                           size="lg"
                           className="gap-2 hover:scale-105 hover:bg-primary hover:text-primary-foreground transition-all duration-300 border-2"
+                          disabled={isUploading}
+                          asChild
                         >
-                          <Upload className="size-4" />
-                          Upload Resume
-                        </Button>
-                        <Button
-                          size="lg"
-                          className="gap-2 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                          <Sparkles className="size-4" />
-                          Use AI Assistant
+                          <label htmlFor="resume-upload-empty" className="cursor-pointer">
+                            <Upload className="size-4" />
+                            {isUploading ? "Uploading..." : "Upload Resume"}
+                          </label>
                         </Button>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </main>

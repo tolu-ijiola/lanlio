@@ -135,7 +135,7 @@ export default function WebsitesPage() {
   })) : mockWebsites;
 
   const filteredWebsites = displayWebsites.filter((website) =>
-    website.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    website.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (website.url || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -286,7 +286,7 @@ export default function WebsitesPage() {
                     {website.thumbnail ? (
                       <Image
                         src={website.thumbnail}
-                        alt={website.name}
+                        alt={website.title}
                         fill
                         className="object-cover"
                       />
@@ -312,7 +312,7 @@ export default function WebsitesPage() {
                   <div className="flex-1 flex flex-col">
                     <Link href={`/dashboard/website/${website.id}`}>
                       <h3 className="text-lg font-semibold text-foreground mb-1 hover:text-primary transition-colors line-clamp-1">
-                        {website.name}
+                        {website.title}
                       </h3>
                     </Link>
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
@@ -341,7 +341,7 @@ export default function WebsitesPage() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 gap-2"
-                        onClick={() => router.push(`/editor?id=${website.id}`)}
+                        onClick={() => router.push(`/editor/${website.id}`)}
                       >
                         <Edit className="size-3" />
                         Edit
@@ -387,7 +387,7 @@ export default function WebsitesPage() {
                       {website.thumbnail ? (
                         <Image
                           src={website.thumbnail}
-                          alt={website.name}
+                          alt={website.title}
                           fill
                           className="object-cover"
                         />
@@ -404,7 +404,7 @@ export default function WebsitesPage() {
                     <div className="flex-1 min-w-0">
                       <Link href={`/dashboard/website/${website.id}`}>
                         <h3 className="text-base font-semibold text-foreground mb-1 hover:text-primary transition-colors">
-                          {website.name}
+                          {website.title}
                         </h3>
                       </Link>
                       <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
@@ -427,7 +427,7 @@ export default function WebsitesPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <Link href={`/editor?website=${website.id}`}>
+                      <Link href={`/editor/${website.id}`}>
                         <Button variant="outline" size="sm" className="gap-2">
                           <Edit className="size-3" />
                           Edit

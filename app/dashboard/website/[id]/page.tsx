@@ -80,7 +80,7 @@ export default function WebsiteDetailPage() {
                   <Globe className="size-5 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">{website.name}</h1>
+                  <h1 className="text-xl font-bold text-foreground">{website.title}</h1>
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Globe className="size-3" />
                     {website.url}
@@ -96,7 +96,7 @@ export default function WebsiteDetailPage() {
                   Preview
                 </Button>
               </Link>
-              <Link href={`/editor?website=${website.id}`}>
+              <Link href={`/editor/${website.id}`}>
                 <Button size="sm" className="gap-2">
                   <Edit className="size-4" />
                   Edit Website
@@ -201,7 +201,7 @@ export default function WebsiteDetailPage() {
                 {website.thumbnail ? (
                   <Image
                     src={website.thumbnail}
-                    alt={website.name}
+                    alt={website.title}
                     fill
                     className="object-cover"
                   />
@@ -276,7 +276,7 @@ export default function WebsiteDetailPage() {
             <div className="bg-background rounded-[22px] p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Link href={`/editor?website=${website.id}`}>
+                <Link href={`/editor/${website.id}`}>
                   <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start gap-2 hover:bg-muted/50 transition-colors">
                     <Edit className="size-5 text-primary" />
                     <div className="text-left">

@@ -124,96 +124,119 @@ function Award({ data, isPreviewMode, onUpdate }: AwardProps) {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-3 border-b">
-        <h3 className="text-sm font-semibold">Awards</h3>
-        <Button onClick={handleAddAward} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Award
-        </Button>
-      </div>
-      
-      {data.awards.map((award, index) => (
-        <div key={index} className="p-4 border border-border rounded-lg space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold">Award #{index + 1}</span>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => handleRemoveAward(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted group">
-            {award.image ? (
-              <>
+  // Canvas mode - show clean content only
+  if (data.awards.length === 0) return null;
+  
+  const styles = (data as any).styles || {};
+  const gap = (data as any).gap || '24px';
+  const titleColor = styles.color || 'var(--palette-title)';
+  const descriptionColor = styles.descriptionColor || 'var(--palette-description)';
+  const backgroundColor = styles.backgroundColor || '#ffffff';
+  const borderColor = styles.borderColor || '#e5e7eb';
+  const borderRadius = styles.borderRadius || '12px';
+  const borderWidth = styles.borderWidth || '1px';
+  const padding = styles.padding || '16px';
+  const boxShadow = styles.boxShadow;
+  const variant = (data as any).variant || 'grid';
+  
+  // Card variant
+  if (variant === 'card') {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap }}>
+        {data.awards.map((award, index) => (
+          <div 
+            key={index} 
+            className="space-y-3 transition-all duration-300 hover:shadow-lg"
+            style={{
+              backgroundColor: backgroundColor,
+              borderRadius: borderRadius,
+              borderColor: borderColor,
+              borderWidth: borderWidth,
+              borderStyle: 'solid',
+              padding: padding,
+              boxShadow: boxShadow,
+            }}
+          >
+            <div className="relative w-full aspect-4/3 rounded-lg overflow-hidden bg-muted">
+              {award.image ? (
                 <img src={award.image} alt={award.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, index)}
-                    className="hidden"
-                    id={`award-image-${index}`}
-                  />
-                  <label
-                    htmlFor={`award-image-${index}`}
-                    className="cursor-pointer"
-                  >
-                    <Button size="sm" variant="secondary">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Change
-                    </Button>
-                  </label>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-400/20 to-orange-400/20">
+                  <Trophy className="size-16 text-yellow-500" />
                 </div>
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-400/20 to-orange-400/20">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, index)}
-                  className="hidden"
-                  id={`award-image-${index}`}
-                />
-                <label
-                  htmlFor={`award-image-${index}`}
-                  className="cursor-pointer"
-                >
-                  <Button size="sm" variant="ghost">
-                    <Trophy className="size-8 text-yellow-500" />
-                  </Button>
-                </label>
-              </div>
+              )}
+            </div>
+            <h4 
+              className="text-lg font-bold"
+              style={{ color: titleColor }}
+            >
+              {award.title || 'Award Title'}
+            </h4>
+            {award.description && (
+              <p 
+                className="text-sm"
+                style={{ color: descriptionColor }}
+              >
+                {award.description}
+              </p>
+            )}
+            <p 
+              className="text-xs"
+              style={{ color: descriptionColor }}
+            >
+              {award.organization} {award.year && `• ${award.year}`}
+            </p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // List variant
+  return (
+    <div className="space-y-4">
+      {data.awards.map((award, index) => (
+        <div 
+          key={index} 
+          className="flex gap-4 items-start transition-all duration-300 hover:shadow-lg p-4 rounded-lg"
+          style={{
+            backgroundColor: backgroundColor,
+            borderRadius: borderRadius,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            borderStyle: 'solid',
+            boxShadow: boxShadow,
+          }}
+        >
+          {award.image ? (
+            <img src={award.image} alt={award.title} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" style={{ borderRadius: borderRadius }} />
+          ) : (
+            <div className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-lg flex-shrink-0" style={{ borderRadius: borderRadius }}>
+              <Trophy className="size-8 text-yellow-500" />
+            </div>
+          )}
+          <div className="flex-1">
+            <h4 
+              className="text-lg font-bold mb-1"
+              style={{ color: titleColor }}
+            >
+              {award.title || 'Award Title'}
+            </h4>
+            <p 
+              className="text-sm mb-1"
+              style={{ color: descriptionColor }}
+            >
+              {award.organization} {award.year && `• ${award.year}`}
+            </p>
+            {award.description && (
+              <p 
+                className="text-sm"
+                style={{ color: descriptionColor }}
+              >
+                {award.description}
+              </p>
             )}
           </div>
-          <Input
-            placeholder="Award Title"
-            value={award.title}
-            onChange={(e) => handleUpdateAward(index, 'title', e.target.value)}
-          />
-          <div className="flex gap-2">
-            <Input
-              placeholder="Organization"
-              value={award.organization}
-              onChange={(e) => handleUpdateAward(index, 'organization', e.target.value)}
-              className="flex-1"
-            />
-            <Input
-              placeholder="Year"
-              value={award.year}
-              onChange={(e) => handleUpdateAward(index, 'year', e.target.value)}
-              className="w-24"
-            />
-          </div>
-          <Textarea
-            placeholder="Description"
-            value={award.description}
-            onChange={(e) => handleUpdateAward(index, 'description', e.target.value)}
-            rows={3}
-          />
         </div>
       ))}
     </div>

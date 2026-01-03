@@ -61,53 +61,22 @@ export default function HtmlComponent({
     `;
   }, [code, data.id]);
 
-  if (isPreviewMode) {
-    if (!code) {
-      return (
-        <div className="w-full h-32 bg-muted border border-dashed border-border rounded-xl flex flex-col items-center justify-center">
-          <Code className="h-8 w-8 mb-2 text-muted-foreground opacity-50" />
-          <p className="text-sm font-medium text-muted-foreground">Empty HTML Block</p>
-          <p className="text-xs text-muted-foreground opacity-70">Add HTML code in the properties panel</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="w-full relative min-h-[50px]">
-        <iframe
-          key={`html-${data.id}-${code?.slice(0, 50)}`}
-          srcDoc={htmlContent}
-          className="w-full border-0 block"
-          style={{ height: '100%', minHeight: '50px' }}
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
-          title="HTML Block"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        />
-      </div>
-    );
+  // Canvas mode - show clean content only
+  if (!code) {
+    return null;
   }
 
   return (
-    <div className="space-y-4">
-      <Textarea
-        placeholder="Enter HTML code..."
-        value={code || ""}
-        onChange={(e) => onUpdate({ ...data, code: e.target.value })}
-        className="min-h-[200px] font-mono text-sm"
+    <div className="w-full relative min-h-[50px]">
+      <iframe
+        key={`html-${data.id}-${code?.slice(0, 50)}`}
+        srcDoc={htmlContent}
+        className="w-full border-0 block"
+        style={{ height: '100%', minHeight: '50px' }}
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+        title="HTML Block"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       />
-      {code && (
-        <div className="w-full relative min-h-[200px] border border-border rounded-lg overflow-hidden bg-white">
-          <iframe
-            key={`html-preview-${data.id}-${code?.slice(0, 50)}`}
-            srcDoc={htmlContent}
-            className="w-full border-0 block"
-            style={{ height: '100%', minHeight: '200px' }}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
-            title="HTML Block Preview"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          />
-        </div>
-      )}
     </div>
   );
 }

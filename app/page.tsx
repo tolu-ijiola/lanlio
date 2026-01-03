@@ -87,7 +87,6 @@ export default function Home() {
     { title: "community manager" },
     { title: "UX researcher" },
     { title: "business analyst" },
-    { title: "consultant" },
     { title: "influencer" },
     { title: "podcast editor" },
     { title: "motion designer" },
@@ -174,7 +173,7 @@ export default function Home() {
   ]
   
   return (
-    <div className=" p-4 pt-0 space-y-20">
+    <div className="p-4 pt-0 space-y-20 bg-background">
       <div className=" p-4">
         <div className=" max-w-6xl py-8 mx-auto">
           <h1 className=" text-4xl md:text-5xl lg:text-6xl text-center font-bold">
@@ -182,7 +181,7 @@ export default function Home() {
             <br /> a <span className="text-primary font-sans">portfolio</span>{" "}
             in seconds
           </h1>
-          <p className=" mt-4 text-gray-500 text-center max-w-3xl mx-auto">
+          <p className=" mt-4 text-muted-foreground text-center max-w-3xl mx-auto">
            
           Stop spending hours designing your personal site. Upload your resume, and we'll build a stunning and professional portfolio for you instantly.
           </p>
@@ -195,7 +194,7 @@ export default function Home() {
             >
               <Link href="/">
                 Start Building Free
-                <div className=" bg-background group-hover:bg-white group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
+                <div className=" bg-background dark:bg-card group-hover:bg-primary/10 group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
                   <ArrowUpRight />
                 </div>
               </Link>
@@ -210,7 +209,7 @@ export default function Home() {
                   <div className="h-12 border-b flex items-center px-4 gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500/20"></div>
                     <div className="w-3 h-3 rounded-full bg-yellow-500/20"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/20"></div>
+                    <div className="w-3 h-3 rounded-full bg-primary/20"></div>
                     <div className="ml-4 h-6 w-64 bg-muted rounded-full opacity-50"></div>
                   </div>
                   <div className="flex-1 p-8 flex gap-8">
@@ -249,7 +248,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-4 max-w-6xl mx-auto">
             {/* Step 1 */}
-            <div className="group relative overflow-hidden rounded border bg-white p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1">
+            <div className="group relative overflow-hidden rounded border bg-card p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1">
               <div className="relative z-10 mb-8">
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <span className="font-bold">1</span>
@@ -281,7 +280,7 @@ export default function Home() {
             </div>
 
             {/* Step 2 */}
-            <div className="group relative overflow-hidden rounded border bg-white p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1 md:col-span-2">
+            <div className="group relative overflow-hidden rounded border bg-card p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1 md:col-span-2">
               <div className="flex flex-col md:flex-row gap-8 h-full">
                 <div className="flex-1 relative z-10 flex flex-col justify-between">
                   <div>
@@ -338,7 +337,7 @@ export default function Home() {
             >
               <Link href="/">
                 Generate Portfolio
-                <div className=" bg-background group-hover:bg-white group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
+                <div className=" bg-background dark:bg-card group-hover:bg-primary/10 group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
                   <ArrowUpRight />
                 </div>
               </Link>
@@ -351,8 +350,8 @@ export default function Home() {
                     <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
                       <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
-                      <div className="ml-2 h-4 w-24 bg-white rounded-sm text-[8px] flex items-center justify-center text-muted-foreground">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary/80"></div>
+                      <div className="ml-2 h-4 w-24 bg-card rounded-sm text-[8px] flex items-center justify-center text-muted-foreground">
                         portfolify.com/me
                       </div>
                     </div>
@@ -372,7 +371,7 @@ export default function Home() {
                     </div>
 
                     {/* Success Badge */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 scale-0 group-hover:scale-100 transition-transform delay-100">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 scale-0 group-hover:scale-100 transition-transform delay-100">
                       <CheckCircle2 className="w-4 h-4" /> Live
                     </div>
                   </div>
@@ -382,7 +381,7 @@ export default function Home() {
 
 
             {/* Step 4 */}
-            <div className="group relative overflow-hidden rounded border bg-white p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1">
+            <div className="group relative overflow-hidden rounded border bg-card p-8 shadow-sm transition-all hover:shadow hover:-translate-y-1">
               <div className="relative z-10 mb-8">
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <span className="font-bold">4</span>
@@ -482,7 +481,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl capitalize font-bold text-foreground mb-6">
-            Have questions?<br/> We've got answers.
+            Have Questions? We've Got Answers.
           </h2>
         </div>
         
@@ -507,7 +506,7 @@ export default function Home() {
       </div>
       <div className="w-full relative overflow-hidden flex flex-col justify-center items-center gap-2">
       {/* Content */}
-      <div className="self-stretch px-6 md:px-24 py-12 md:py-12 border-t border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6 relative z-10">
+      <div className="self-stretch px-6 md:px-24 py-12 md:py-12 border-t border-b border-border flex justify-center items-center gap-6 relative z-10">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <div className="w-full h-full relative">
             {Array.from({ length: 300 }).map((_, i) => (
@@ -519,6 +518,7 @@ export default function Home() {
                   left: "-100%",
                   width: "300%",
                 }}
+                className="dark:outline-[rgba(255,255,255,0.05)]"
               ></div>
             ))}
           </div>
@@ -526,10 +526,10 @@ export default function Home() {
 
         <div className="w-full max-w-[586px] px-6 py-5 md:py-8 overflow-hidden rounded-lg flex flex-col justify-start items-center gap-6 relative z-20">
           <div className="self-stretch flex flex-col justify-start items-start gap-3">
-            <div className="self-stretch text-center flex justify-center flex-col text-[#49423D] text-3xl md:text-5xl font-semibold leading-tight md:leading-[56px] font-sans tracking-tight">
+            <div className="self-stretch text-center flex justify-center flex-col text-foreground text-3xl md:text-5xl font-semibold leading-tight md:leading-[56px] font-sans tracking-tight">
             Ready to create your portfolio?
             </div>
-            <div className="self-stretch text-center text-[#605A57] text-base leading-7 font-sans font-medium">
+            <div className="self-stretch text-center text-muted-foreground text-base leading-7 font-sans font-medium">
               Join thousands of professionals building their online presence,
               <br />
               sharing their work, and getting hired.
@@ -543,7 +543,7 @@ export default function Home() {
             >
               <Link href="/">
                 Start Building
-                <div className=" bg-background group-hover:bg-white group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
+                <div className=" bg-background dark:bg-card group-hover:bg-primary/10 group-hover:text-primary group-hover:border-2 duration-500 rounded-full p-2 text-primary">
                   <ArrowUpRight />
                 </div>
               </Link>

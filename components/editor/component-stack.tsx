@@ -69,7 +69,9 @@ function SortableItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const metadata = componentRegistry[component.type];
+  const metadata = component.type !== 'layout' && component.type in componentRegistry 
+    ? componentRegistry[component.type as keyof typeof componentRegistry] 
+    : null;
 
   return (
     <div

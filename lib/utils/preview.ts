@@ -5,7 +5,7 @@
 export function getWebsitePreviewUrl(website: {
   domain: string;
   thumbnail?: string | null;
-  name: string;
+  title: string;
 }): string | null {
   // If thumbnail exists, use it
   if (website.thumbnail) {
@@ -60,6 +60,28 @@ export function formatRelativeTime(date: string | Date): string {
   const diffInYears = Math.floor(diffInDays / 365);
   return `${diffInYears} ${diffInYears === 1 ? "year" : "years"} ago`;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

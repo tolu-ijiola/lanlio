@@ -53,8 +53,8 @@ export type ComponentType =
   | 'tools'
   | 'languages'
   | 'link-block'
-  | 'profile-photo'
-  | 'layout';
+  | 'profile-photo';
+  // | 'layout';
 
 export interface ComponentMetadata {
   id: ComponentType;
@@ -262,19 +262,19 @@ export const componentRegistry: Record<ComponentType, ComponentMetadata> = {
     category: 'media',
     component: ProfilePhoto,
   },
-  layout: {
-    id: 'layout',
-    name: 'Layout',
-    description: 'Multi-column layout container',
-    category: 'text', // It's structural, but 'text' category seems to hold structural items like spacer/divider
-    component: React.lazy(() => import('@/components/editor-v2/layout-component').then(mod => ({ default: mod.LayoutComponent }))),
-  },
+  // layout: {
+  //   id: 'layout',
+  //   name: 'Layout',
+  //   description: 'Multi-column layout container',
+  //   category: 'text',
+  //   component: React.lazy(() => import('@/components/editor/layout').then(mod => ({ default: mod.LayoutComponent }))),
+  // },
 };
 
 export const componentCategories = {
   text: { name: 'Text', components: ['profile', 'header', 'text', 'button', 'divider', 'spacer'] as ComponentType[] },
   media: { name: 'Media', components: ['image', 'video', 'gallery', 'embed', 'profile-photo'] as ComponentType[] },
-  content: { name: 'Content', components: ['html', 'skills', 'experience', 'services', 'pricing', 'projects', 'award', 'review', 'tools', 'languages', 'link-block'] as ComponentType[] },
+  content: { name: 'Content', components: ['navigation', 'skills', 'experience', 'services', 'pricing', 'projects', 'award', 'review', 'tools', 'languages', 'link-block'] as ComponentType[] },
   contact: { name: 'Contact', components: ['contact-form', 'contact-details'] as ComponentType[] },
   social: { name: 'Social', components: ['social-media', 'github', 'spotify'] as ComponentType[] },
 };

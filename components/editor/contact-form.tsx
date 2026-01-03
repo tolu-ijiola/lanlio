@@ -69,27 +69,27 @@ function ContactForm({ data, isPreviewMode, onUpdate }: ContactFormProps) {
     }, 1500);
   };
 
-  if (isPreviewMode) {
-    const showHeader = data.showHeader !== false;
-    const showProfileCard = data.showProfileCard || false;
-    const layout = data.layout || (showProfileCard ? 'split' : 'single');
-    
-    // Get styles from component
-    const styles = (data as any).styles || {};
-    const borderRadius = styles.borderRadius || '12px';
-    const inputBackgroundColor = styles.inputBackgroundColor || '#ffffff';
-    const textColor = styles.color || 'var(--palette-title)';
-    const borderColor = styles.borderColor || 'rgba(0,0,0,0.1)';
-    const borderWidth = styles.borderWidth || '1px';
-    const padding = styles.padding || '24px';
-    const fieldSpacing = data.fieldSpacing || '20px';
-    const buttonColor = data.buttonColor || 'var(--palette-primary)';
-    const buttonTextColor = data.buttonTextColor || '#ffffff';
-    const shadow = data.shadow || 'none';
-    
-    const successMessage = data.successMessage || "Thanks for reaching out! We'll get back to you shortly.";
+  // Canvas mode - show clean content only
+  const showHeader = data.showHeader !== false;
+  const showProfileCard = data.showProfileCard || false;
+  const layout = data.layout || (showProfileCard ? 'split' : 'single');
+  
+  // Get styles from component
+  const styles = (data as any).styles || {};
+  const borderRadius = styles.borderRadius || '12px';
+  const inputBackgroundColor = styles.inputBackgroundColor || '#ffffff';
+  const textColor = styles.color || 'var(--palette-title)';
+  const borderColor = styles.borderColor || 'rgba(0,0,0,0.1)';
+  const borderWidth = styles.borderWidth || '1px';
+  const padding = styles.padding || '24px';
+  const fieldSpacing = data.fieldSpacing || '20px';
+  const buttonColor = data.buttonColor || 'var(--palette-primary)';
+  const buttonTextColor = data.buttonTextColor || '#ffffff';
+  const shadow = data.shadow || 'none';
+  
+  const successMessage = data.successMessage || "Thanks for reaching out! We'll get back to you shortly.";
 
-    if (isSubmitted) {
+  if (isSubmitted) {
       return (
         <div 
           className="w-full flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in duration-300"
@@ -118,9 +118,9 @@ function ContactForm({ data, isPreviewMode, onUpdate }: ContactFormProps) {
           </Button>
         </div>
       );
-    }
-    
-    const formContent = (
+  }
+  
+  const formContent = (
       <form 
         className="w-full space-y-6" 
         onSubmit={handleSubmit} 
@@ -194,21 +194,21 @@ function ContactForm({ data, isPreviewMode, onUpdate }: ContactFormProps) {
           </Button>
         </div>
       </form>
-    );
+  );
 
-    // Get width - use data.width or default to max-w-4xl
-    const widthClass = data.width && data.width.startsWith('max-w-') 
-      ? data.width 
-      : data.width 
-        ? `w-full` 
-        : 'max-w-4xl';
-    const widthStyle = data.width && !data.width.startsWith('max-w-') 
-      ? { maxWidth: data.width } 
-      : {};
-    
-    // Split layout with profile card
-    if (layout === 'split' && showProfileCard) {
-      return (
+  // Get width - use data.width or default to max-w-4xl
+  const widthClass = data.width && data.width.startsWith('max-w-') 
+    ? data.width 
+    : data.width 
+      ? `w-full` 
+      : 'max-w-4xl';
+  const widthStyle = data.width && !data.width.startsWith('max-w-') 
+    ? { maxWidth: data.width } 
+    : {};
+  
+  // Split layout with profile card
+  if (layout === 'split' && showProfileCard) {
+    return (
         <div className={`w-full ${widthClass} mx-auto`} style={widthStyle}>
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div className="space-y-8 sticky top-24">
@@ -276,12 +276,12 @@ function ContactForm({ data, isPreviewMode, onUpdate }: ContactFormProps) {
               {formContent}
             </div>
           </div>
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    // Single column layout
-    return (
+  // Single column layout
+  return (
       <div className={`w-full ${widthClass} mx-auto`} style={widthStyle}>
         {showHeader && (
           <div className="mb-10 space-y-3 text-center">
@@ -298,122 +298,6 @@ function ContactForm({ data, isPreviewMode, onUpdate }: ContactFormProps) {
         {formContent}
       </div>
     );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Form Fields</h3>
-          <div className="text-xs text-muted-foreground">
-            {data.fields.length} fields active
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2">
-          {availableFields.map((field) => {
-            const isSelected = data.fields.some((f) => f.name === field.name);
-            return (
-              <div
-                key={field.name}
-                className={`flex items-center gap-2 p-2 border rounded cursor-pointer transition-colors ${
-                  isSelected ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'
-                }`}
-                onClick={() => handleToggleField(field.name, field.type, field.label)}
-              >
-                <Checkbox checked={isSelected} />
-                <label className="text-xs cursor-pointer font-medium">{field.label}</label>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {data.fields.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Field Configuration</h3>
-          <div className="space-y-3 p-3 border rounded-lg bg-muted/20">
-            {data.fields.map((field, index) => (
-              <div key={index} className="flex gap-2 items-center bg-background p-2 rounded border shadow-sm">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase text-muted-foreground w-12">{field.name}</span>
-                    <Input
-                      placeholder="Placeholder text"
-                      value={field.placeholder || ''}
-                      onChange={(e) => handleUpdateField(index, { placeholder: e.target.value })}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 pl-14">
-                    <Checkbox
-                      checked={field.required}
-                      onCheckedChange={(checked) =>
-                        handleUpdateField(index, { required: checked === true })
-                      }
-                      id={`required-${index}`}
-                    />
-                    <label htmlFor={`required-${index}`} className="text-xs cursor-pointer select-none">Required field</label>
-                  </div>
-                </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleRemoveField(index)}
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-4 border-t pt-4">
-        <h3 className="text-sm font-semibold">Submit Button</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">Button Text</label>
-            <Input
-              placeholder="Send Message"
-              value={data.submitText}
-              onChange={(e) => onUpdate({ ...data, submitText: e.target.value })}
-              className="h-8 text-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">Button Color</label>
-            <div className="flex gap-2">
-              <Input
-                type="color"
-                value={data.buttonColor || '#000000'}
-                onChange={(e) => onUpdate({ ...data, buttonColor: e.target.value })}
-                className="h-8 w-12 p-1 cursor-pointer"
-              />
-              <Input
-                type="text"
-                value={data.buttonColor || '#000000'}
-                onChange={(e) => onUpdate({ ...data, buttonColor: e.target.value })}
-                className="h-8 text-sm flex-1"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 border-t pt-4">
-        <h3 className="text-sm font-semibold">Success Message</h3>
-        <Textarea
-          placeholder="Thanks for reaching out! We'll get back to you shortly."
-          value={data.successMessage || ''}
-          onChange={(e) => onUpdate({ ...data, successMessage: e.target.value })}
-          className="resize-none text-sm"
-          rows={3}
-        />
-      </div>
-    </div>
-  );
 }
 
 export default ContactForm;

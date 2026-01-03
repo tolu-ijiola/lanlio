@@ -352,189 +352,198 @@ function Projects({ data, isPreviewMode, onUpdate }: ProjectsProps) {
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4 pb-2 border-b">
-        <label className="text-sm font-medium">Display Mode:</label>
-        <select
-          value={data.mode || 'grid'}
-          onChange={(e) => onUpdate({ ...data, mode: e.target.value as 'grid' | 'list' | 'carousel' })}
-          className="px-3 py-2 rounded-md border border-border bg-background text-sm"
-        >
-          <option value="grid">Grid</option>
-          <option value="list">List</option>
-          <option value="carousel">Carousel</option>
-        </select>
-      </div>
+  // Canvas mode - show clean content only (reuse preview rendering)
+  if (data.projects.length === 0) return null;
+  
+  const mode = data.mode || 'grid';
+  const styles = (data as any).styles || {};
+  const gap = (data as any).gap || '16px';
+  const titleColor = styles.color || 'var(--palette-title)';
+  const descriptionColor = styles.descriptionColor || 'var(--palette-description)';
+  const backgroundColor = styles.backgroundColor || '#ffffff';
+  const borderColor = styles.borderColor || '#e5e7eb';
+  const borderRadius = styles.borderRadius || '12px';
+  const borderWidth = styles.borderWidth || '1px';
+  const padding = styles.padding || '16px';
+  const boxShadow = styles.boxShadow;
 
-      {data.projects.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  // Grid Mode - Premium cards with description
+  if (mode === 'grid') {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap }}>
           {data.projects.map((project, index) => (
-            <div key={index} className="p-4 border border-border rounded-lg space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 space-y-3">
-                  <div className="relative aspect-[4/3] max-h-32 overflow-hidden rounded-lg border border-border">
-                    {project.image ? (
-                      <div className="relative group h-full">
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              const fileInput = document.createElement('input');
-                              fileInput.type = 'file';
-                              fileInput.accept = 'image/*';
-                              fileInput.onchange = (e) => handleImageUpload(e as any, index);
-                              fileInput.click();
-                            }}
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Change
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleUpdateProject(index, 'image', '')}
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-full bg-muted/30">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            const fileInput = document.createElement('input');
-                            fileInput.type = 'file';
-                            fileInput.accept = 'image/*';
-                            fileInput.onchange = (e) => handleImageUpload(e as any, index);
-                            fileInput.click();
-                          }}
-                        >
-                          <FileImage className="mr-2 size-4" />
-                          Add Image
-                        </Button>
-                      </div>
-                    )}
+            <a
+              key={index}
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              style={{ 
+                borderRadius: borderRadius,
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                borderStyle: 'solid',
+                boxShadow: boxShadow,
+              }}
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-muted/30 flex items-center justify-center">
+                    <FileImage className="size-12 text-muted-foreground/30" />
                   </div>
-                  <Input
-                    placeholder="Project Title"
-                    value={project.title}
-                    onChange={(e) => handleUpdateProject(index, 'title', e.target.value)}
-                    className="h-10"
-                  />
-                  <Input
-                    placeholder="Project Link"
-                    value={project.link}
-                    onChange={(e) => handleUpdateProject(index, 'link', e.target.value)}
-                    className="h-10"
-                  />
-                  <Input
-                    placeholder="Brief Description (optional)"
-                    value={project.description || ''}
-                    onChange={(e) => handleUpdateProject(index, 'description', e.target.value)}
-                    className="h-10 text-sm"
-                  />
-                </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleRemoveProject(index)}
-                  className="h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                )}
               </div>
-            </div>
+              <div style={{ padding }}>
+                <h3 
+                  className="text-lg font-bold mb-2"
+                  style={{ color: titleColor }}
+                >
+                  {project.title}
+                </h3>
+                {project.description && (
+                  <p 
+                    className="text-sm leading-relaxed"
+                    style={{ color: descriptionColor }}
+                  >
+                    {project.description}
+                  </p>
+                )}
+              </div>
+            </a>
           ))}
         </div>
-      )}
-
-      <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
-        <div className="space-y-3">
-          <div className="relative aspect-[4/3] max-h-32 overflow-hidden rounded-lg border border-border bg-muted/30">
-            {newProject.image ? (
-              <div className="relative group h-full">
-                <img
-                  src={newProject.image}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Change
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => setNewProject({ ...newProject, image: '' })}
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <FileImage className="mr-2 size-4" />
-                  Add Project Image
-                </Button>
-              </div>
-            )}
-          </div>
-          <Input
-            placeholder="Project Title *"
-            value={newProject.title}
-            onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-            className="h-10"
-          />
-          <Input
-            placeholder="Project Link *"
-            value={newProject.link}
-            onChange={(e) => setNewProject({ ...newProject, link: e.target.value })}
-            className="h-10"
-          />
-          <Input
-            placeholder="Brief Description (optional)"
-            value={newProject.description || ''}
-            onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-            className="h-10 text-sm"
-          />
-        </div>
-        <Button
-          onClick={handleAddProject}
-          disabled={!newProject.title.trim() || !newProject.link.trim()}
-          className="w-full"
-        >
-          <Plus className="mr-2" /> Add Project
-        </Button>
       </div>
+    );
+  }
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleImageUpload(e)}
-        className="hidden"
-      />
+  // List Mode - Horizontal cards
+  if (mode === 'list') {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-4">
+          {data.projects.map((project, index) => (
+            <a
+              key={index}
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex gap-4 items-center transition-all duration-300 hover:shadow-lg p-4 rounded-lg"
+              style={{ 
+                borderRadius: borderRadius,
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                borderStyle: 'solid',
+                boxShadow: boxShadow,
+              }}
+            >
+              {project.image ? (
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-24 h-24 flex-shrink-0 object-cover rounded-md transition-transform duration-300 group-hover:scale-105"
+                  style={{ borderRadius: borderRadius }}
+                />
+              ) : (
+                <div className="w-24 h-24 flex-shrink-0 bg-muted/30 rounded-md flex items-center justify-center">
+                  <FileImage className="size-8 text-muted-foreground/30" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 
+                  className="text-sm font-semibold truncate mb-1"
+                  style={{ color: titleColor }}
+                >
+                  {project.title}
+                </h3>
+                {project.description && (
+                  <p 
+                    className="text-xs text-muted-foreground line-clamp-2"
+                    style={{ color: descriptionColor }}
+                  >
+                    {project.description}
+                  </p>
+                )}
+              </div>
+              <ExternalLink 
+                className="size-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ color: 'var(--palette-primary)' }}
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Carousel Mode - Horizontal scrolling
+  return (
+    <div className="max-w-4xl mx-auto relative">
+      <div 
+        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none', 
+          WebkitOverflowScrolling: 'touch',
+          gap: gap,
+        }}
+      >
+        {data.projects.map((project, index) => (
+          <a
+            key={index}
+            href={project.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group shrink-0 w-64 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            style={{ 
+              borderRadius: borderRadius,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
+              borderWidth: borderWidth,
+              borderStyle: 'solid',
+              boxShadow: boxShadow,
+            }}
+          >
+            <div className="relative aspect-4/3 overflow-hidden">
+              {project.image ? (
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted/30 flex items-center justify-center">
+                  <FileImage className="size-12 text-muted-foreground/30" />
+                </div>
+              )}
+            </div>
+            <div style={{ padding }}>
+              <h3 
+                className="text-sm font-semibold mb-1 truncate"
+                style={{ color: titleColor }}
+              >
+                {project.title}
+              </h3>
+              {project.description && (
+                <p 
+                  className="text-xs line-clamp-2"
+                  style={{ color: descriptionColor }}
+                >
+                  {project.description}
+                </p>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

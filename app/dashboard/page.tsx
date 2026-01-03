@@ -50,7 +50,7 @@ export default function DashboardPage() {
       title: "New \n Website",
       icon: Plus,
       customIcon: null,
-      onClick: () => router.push("/editor-v2"),
+      onClick: () => router.push("/editor/new"),
     },
     {
       title: "Use \n LinkedIn",
@@ -88,7 +88,7 @@ export default function DashboardPage() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (website) =>
-          website.name.toLowerCase().includes(query) ||
+          website.title.toLowerCase().includes(query) ||
           website.domain.toLowerCase().includes(query) ||
           website.description?.toLowerCase().includes(query)
       );
@@ -137,16 +137,16 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="w-[calc(100vw-9rem)] mx-auto flex flex-col gap-6">
+    <div className="w-full md:w-[calc(100vw-10.5rem)] mx-auto flex flex-col gap-4 md:gap-6 px-4 md:px-0">
       {/* Dashboard Content */}
       <div className="relative overflow-hidden bg-primary/5 flex flex-col justify-center rounded-2xl items-center">
-        <div className="w-full px-6 md:px-24 py-6 md:py-8 border-t border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6 relative z-10 min-h-[60vh]">
+          <div className="w-full px-4 md:px-24 py-4 md:py-8 border-t border-b border-border flex justify-center items-center gap-4 md:gap-6 relative z-10 min-h-[40vh] md:min-h-[60vh]">
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <div className="w-full h-full relative">
               {Array.from({ length: 300 }).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute h-4 w-full rotate-[-45deg] origin-top-left outline outline-[0.5px] outline-[rgba(3,7,18,0.08)] outline-offset-[-0.25px]"
+                  className="absolute h-4 w-full rotate-[-45deg] origin-top-left outline outline-[0.5px] outline-[rgba(3,7,18,0.08)] dark:outline-[rgba(255,255,255,0.05)] outline-offset-[-0.25px]"
                   style={{
                     top: `${i * 16 - 120}px`,
                     left: "-100%",
@@ -157,36 +157,37 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="w-full flex-1 px-6 py-4 md:py-6 overflow-hidden rounded-lg gap-6 relative z-20">
+          <div className="w-full flex-1 px-4 md:px-6 py-4 md:py-6 overflow-hidden rounded-lg gap-4 md:gap-6 relative z-20">
             <div className="self-stretch flex flex-col justify-start items-start gap-3">
-              <div className="self-stretch text-center flex justify-center flex-col text-[#49423D] text-lg md:text-2xl font-semibold leading-tight md:leading-[56px] font-sans tracking-tight">
+              <div className="self-stretch text-center flex justify-center flex-col text-foreground text-2xl md:text-3xl lg:text-4xl font-semibold leading-tight md:leading-tight font-sans tracking-tight">
                 Build your portfolio in minutes
               </div>
-              <div className=" bg-white flex gap-4 items-center mx-auto my-4 rounded-lg p-2 border border-border/50">
+              <div className="w-full bg-card flex gap-2 md:gap-4 items-center mx-auto my-2 md:my-4 rounded-lg p-2 border border-border/50">
                 <Input
-                  className=" border-border/50 bg-muted/30 focus:bg-background focus:ring-0 focus:border-0 focus:ring-offset-0 focus-within:ring-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none min-w-lg"
+                  className="flex-1 border-border/50 bg-muted/30 focus:bg-background focus:ring-0 focus:border-0 focus:ring-offset-0 focus-within:ring-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none text-sm md:text-base"
                   placeholder="Ask AI What you want to create"
                 />
-                <Button size="icon" className="px-4">
+                <Button size="icon" className="px-3 md:px-4 shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className=" flex justify-center mx-auto gap-8 items-center">
+              <div className="w-full flex flex-wrap justify-center mx-auto gap-4 md:gap-8 items-center">
                 {actionCards.map((card, index) => {
                   const IconComponent = card.icon;
 
                   return (
-                    <div key={index}>
-                      <div className="h-12 mb-2 w-12 mx-auto rounded-full bg-white flex justify-center items-center">
+                    <div key={index} className="flex flex-col items-center min-w-[60px]">
+                      <div className="h-10 w-10 md:h-12 md:w-12 mb-2 mx-auto rounded-full bg-card dark:bg-card/90 border border-border flex justify-center items-center shadow-sm">
                         {card.icon && IconComponent && (
-                          <IconComponent className={`h-4 w-4 text-black`} />
+                          <IconComponent className={`h-4 w-4 md:h-5 md:w-5 text-foreground`} />
                         )}
                         {card.customIcon && (
                           <Image
                             src={card.customIcon}
                             alt={card.title}
-                            width={24}
-                            height={24}
+                            width={20}
+                            height={20}
+                            className="md:w-6 md:h-6"
                           />
                         )}
                       </div>
@@ -204,8 +205,11 @@ export default function DashboardPage() {
 
       {/* Website Layout Section */}
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
-        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+        <div className="p-3 md:p-4 lg:p-6 space-y-3 md:space-y-4 lg:space-y-6">
           {/* Search Bar */}
+          <h2 className="text-base md:text-lg lg:text-xl font-semibold text-foreground">
+                All Projects ({filteredAndSortedWebsites.length})
+              </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -217,42 +221,41 @@ export default function DashboardPage() {
           </div>
 
           {/* Header with Tabs and Filters */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              All Projects ({filteredAndSortedWebsites.length})
-            </h2>
+          <div className="flex flex-col gap-3 md:gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              
 
-            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-auto"
-              >
-                <TabsList className="h-8 md:h-9">
-                  <TabsTrigger
-                    value="recently-viewed"
-                    className="text-xs px-2 md:px-3"
-                  >
-                    Recently viewed
-                  </TabsTrigger>
+              <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full sm:w-auto">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full sm:w-auto"
+                >
+                  <TabsList className="h-8 md:h-9 w-full sm:w-auto">
+                    <TabsTrigger
+                      value="recently-viewed"
+                      className="text-xs px-2 md:px-3 flex-1 sm:flex-initial"
+                    >
+                      Recently viewed
+                    </TabsTrigger>
                   <TabsTrigger
                     value="shared-files"
-                    className="text-xs px-2 md:px-3"
+                    className="text-xs px-2 md:px-3 flex-1 sm:flex-initial"
                   >
                     Shared files
                   </TabsTrigger>
                   <TabsTrigger
                     value="shared-projects"
-                    className="text-xs px-2 md:px-3"
+                    className="text-xs px-2 md:px-3 flex-1 sm:flex-initial"
                   >
                     Shared projects
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Select value={organization} onValueChange={setOrganization}>
-                  <SelectTrigger className="h-8 md:h-9 text-xs w-[130px] md:w-[140px]">
+                  <SelectTrigger className="h-8 md:h-9 text-xs w-full sm:w-[130px] md:w-[140px]">
                     <SelectValue placeholder="All organizations" />
                   </SelectTrigger>
                   <SelectContent>
@@ -263,7 +266,7 @@ export default function DashboardPage() {
                 </Select>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="h-8 md:h-9 text-xs w-[110px] md:w-[120px]">
+                  <SelectTrigger className="h-8 md:h-9 text-xs w-full sm:w-[110px] md:w-[120px]">
                     <SelectValue placeholder="Last viewed" />
                   </SelectTrigger>
                   <SelectContent>
@@ -330,7 +333,7 @@ export default function DashboardPage() {
                   : "No projects yet. Create your first website!"}
               </p>
               {!searchQuery && (
-                <Button size={"sm"} className="gap-2 text-xs" onClick={() => router.push("/editor-v2")}>
+                <Button size={"sm"} className="gap-2 text-xs" onClick={() => router.push("/editor/new")}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Website
                 </Button>
@@ -358,7 +361,7 @@ export default function DashboardPage() {
                   <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
                     <div>
                       <h3 className="font-medium text-sm text-foreground line-clamp-2 mb-1">
-                        {website.name}
+                        {website.title}
                       </h3>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
@@ -372,13 +375,13 @@ export default function DashboardPage() {
                           website.status === "published" ? "default" : "outline"
                         }
                         className="text-xs h-7 md:h-8"
-                        onClick={() => router.push(`/editor-v2?id=${website.id}`)}
+                        onClick={() => router.push(`/editor/${website.id}`)}
                       >
                         Open Project
                       </Button>
                       <div className="flex -space-x-2">
                         <div className="h-5 w-5 md:h-6 md:w-6 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center text-xs font-medium text-primary">
-                          {website.name.charAt(0).toUpperCase()}
+                          {(website.title || "W").charAt(0).toUpperCase()}
                         </div>
                       </div>
                     </div>
@@ -389,6 +392,7 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

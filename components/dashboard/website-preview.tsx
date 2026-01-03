@@ -17,7 +17,7 @@ export function WebsitePreview({ website, className = "" }: WebsitePreviewProps)
       <div className={`relative w-full h-full ${className}`}>
         <Image
           src={previewUrl}
-          alt={website.name}
+          alt={website.title || "Website preview"}
           fill
           className="object-cover"
           unoptimized
@@ -50,6 +50,8 @@ export function WebsitePreview({ website, className = "" }: WebsitePreviewProps)
   };
 
   const primary = getColorFromHex(primaryColor);
+  const title = website.title || "W";
+  const initial = title.charAt(0).toUpperCase();
 
   return (
     <div
@@ -62,7 +64,7 @@ export function WebsitePreview({ website, className = "" }: WebsitePreviewProps)
         className="text-3xl md:text-4xl font-bold"
         style={{ color: primaryColor }}
       >
-        {website.name.charAt(0).toUpperCase()}
+        {initial}
       </div>
     </div>
   );

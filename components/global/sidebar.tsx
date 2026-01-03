@@ -38,11 +38,6 @@ import Image from "next/image";
 // Menu items.
 const items = [
   {
-    title: "Websites",
-    url: "/dashboard/website",
-    icon: LayoutDashboard,
-  },
-  {
     title: "Templates",
     url: "/dashboard/templates",
     icon: FileText,
@@ -66,31 +61,30 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="none" className="border rounded-full bg-[#F7F5F3] fixed top-1/2 -translate-y-1/2 border-sidebar-border left-4 h-fit w-20">
-      <SidebarContent className="px-0 py-4 h-full overflow-y-auto flex flex-col items-center">
+    <Sidebar collapsible="none" className="border rounded-full bg-card dark:bg-card/90 fixed top-1/2 -translate-y-1/2 border-sidebar-border left-4 h-fit w-20 shadow-lg">
+      <SidebarContent className="px-0 py-4 h-full overflow-y-auto flex flex-col items-center gap-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 flex flex-col items-center">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                variant="outline"
-                className="h-12 w-12 hover:bg-transparent p-0 bg-transparent flex items-center justify-center"
-                tooltip={{ children: "Home", hidden: false }}
-              >
-                <Link href="/dashboard">
-                  <Image src="/logo.svg" alt="logo" className="size-10 bg-transparent" width={100} height={100} />
-                  <span className="sr-only">Home</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+              {/* Logo - links to dashboard */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  variant="outline"
+                  className="h-12 w-12 hover:bg-transparent p-0 bg-transparent flex items-center justify-center"
+                >
+                  <Link href="/dashboard">
+                    <Image src="/logo.svg" alt="logo" className="size-10 bg-transparent" width={100} height={100} />
+                    <span className="sr-only">Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     variant="outline"
                     className="h-12 w-12 p-0 flex items-center justify-center"
                     asChild
-                    tooltip={{ children: item.title, hidden: false }}
                   >
                     <Link href={item.url} className="flex items-center justify-center">
                       <item.icon className="h-6 w-6" />

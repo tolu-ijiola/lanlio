@@ -92,92 +92,79 @@ function Video({ data, isPreviewMode, onUpdate }: VideoProps) {
 
   const embedUrl = data.embedUrl ? convertToEmbedUrl(data.embedUrl) : '';
 
-  if (isPreviewMode) {
-    if (!data.embedUrl) {
-      return (
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border border-border flex items-center justify-center">
-          <p className="text-muted-foreground">No video added</p>
-        </div>
-      );
-    }
-
-    // If conversion failed but we have a URL, try to use it directly
-    let finalEmbedUrl = embedUrl || data.embedUrl;
-    
-    if (!finalEmbedUrl) {
-      return (
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border border-border flex items-center justify-center">
-          <p className="text-muted-foreground">Invalid video URL</p>
-        </div>
-      );
-    }
-
-    // Build iframe src with optional parameters
-    const urlParams = new URLSearchParams();
-    
-    // Add autoplay, mute, loop, controls if specified in data
-    if ((data as any).autoplay) urlParams.set('autoplay', '1');
-    if ((data as any).mute) urlParams.set('mute', '1');
-    if ((data as any).loop) urlParams.set('loop', '1');
-    if ((data as any).showControls === false) urlParams.set('controls', '0');
-    
-    if (urlParams.toString()) {
-      finalEmbedUrl = `${finalEmbedUrl}${finalEmbedUrl.includes('?') ? '&' : '?'}${urlParams.toString()}`;
-    }
-
+  // Edit mode - show URL input
+  if (!isPreviewMode) {
     return (
-      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted shadow">
-        <iframe
-          src={finalEmbedUrl}
-          className="absolute inset-0 w-full h-full border-0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-          frameBorder="0"
-          title={data.title || 'Video'}
-          loading={(data as any).lazyLoad ? 'lazy' : 'eager'}
-        />
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-medium text-foreground mb-1.5">Video URL</label>
+          <Input
+            type="text"
+            value={data.embedUrl || ''}
+            onChange={(e) => onUpdate({ ...data, embedUrl: e.target.value })}
+            placeholder="Paste YouTube or Vimeo URL"
+            className="w-full h-9 text-sm"
+          />
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Supports YouTube and Vimeo links
+          </p>
+        </div>
+        {data.embedUrl && (
+          <div>
+            <label className="block text-xs font-medium text-foreground mb-1.5">Title</label>
+            <Input
+              type="text"
+              value={data.title || ''}
+              onChange={(e) => onUpdate({ ...data, title: e.target.value })}
+              placeholder="Video title"
+              className="w-full h-9 text-sm"
+            />
+          </div>
+        )}
       </div>
     );
   }
 
+  // Preview mode - show video or placeholder
+  if (!data.embedUrl) {
+    return (
+      <div className="flex items-center justify-center p-8 border-2 border-dashed border-border rounded-lg bg-muted/20">
+        <p className="text-sm text-muted-foreground">No video added</p>
+      </div>
+    );
+  }
+
+  // If conversion failed but we have a URL, try to use it directly
+  let finalEmbedUrl = embedUrl || data.embedUrl;
+  
+  if (!finalEmbedUrl) {
+    return null;
+  }
+
+  // Build iframe src with optional parameters
+  const urlParams = new URLSearchParams();
+  
+  // Add autoplay, mute, loop, controls if specified in data
+  if ((data as any).autoplay) urlParams.set('autoplay', '1');
+  if ((data as any).mute) urlParams.set('mute', '1');
+  if ((data as any).loop) urlParams.set('loop', '1');
+  if ((data as any).showControls === false) urlParams.set('controls', '0');
+  
+  if (urlParams.toString()) {
+    finalEmbedUrl = `${finalEmbedUrl}${finalEmbedUrl.includes('?') ? '&' : '?'}${urlParams.toString()}`;
+  }
+
   return (
-    <div className="space-y-4">
-      <Input
-        placeholder="Embed URL (YouTube, Vimeo, or direct embed link)"
-        value={data.embedUrl}
-        onChange={(e) => onUpdate({ ...data, embedUrl: e.target.value })}
-        className="h-12"
+    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted shadow">
+      <iframe
+        src={finalEmbedUrl}
+        className="absolute inset-0 w-full h-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        frameBorder="0"
+        title={data.title || 'Video'}
+        loading={(data as any).lazyLoad ? 'lazy' : 'eager'}
       />
-      <Input
-        placeholder="Video Title (Optional)"
-        value={data.title || ''}
-        onChange={(e) => onUpdate({ ...data, title: e.target.value })}
-        className="h-12"
-      />
-      {(embedUrl || data.embedUrl) && (
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted shadow">
-          <iframe
-            src={embedUrl || data.embedUrl}
-            className="absolute inset-0 w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            frameBorder="0"
-            title={data.title || 'Video'}
-          />
-        </div>
-      )}
-      {data.embedUrl && !embedUrl && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            Could not parse video URL. Please check the format. Supported formats:
-          </p>
-          <ul className="text-xs text-yellow-700 mt-1 list-disc list-inside">
-            <li>YouTube: https://youtube.com/watch?v=VIDEO_ID</li>
-            <li>YouTube: https://youtu.be/VIDEO_ID</li>
-            <li>Vimeo: https://vimeo.com/VIDEO_ID</li>
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

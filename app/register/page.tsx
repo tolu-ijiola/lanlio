@@ -5,80 +5,69 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User, Eye, EyeClosed } from "lucide-react";
-import { signUpWithEmail, signInWithOAuth, resendEmailConfirmation } from "@/lib/supabase/auth";
+import { Mail, Lock, Loader2, Globe } from "lucide-react";
+import { signUpWithEmail, signInWithOAuth } from "@/lib/supabase/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeToTerms: false
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
 
     // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match. Please try again.");
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
     }
 
-    if (!formData.agreeToTerms) {
-      setError("Please agree to the Terms of Service and Privacy Policy.");
-      return;
-    }
-
     setIsLoading(true);
-    
+
     try {
       const { data, error: signUpError } = await signUpWithEmail(
-        formData.email,
-        formData.password,
-        {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        }
+        email,
+        password,
+        { firstName, lastName }
       );
-      
+
       if (signUpError) {
         setError(signUpError.message || "Failed to create account. Please try again.");
         setIsLoading(false);
         return;
       }
 
-      // Check if email confirmation is required
-      if (data?.user && !data.session) {
-        // Email confirmation required
-        setSuccess(true);
+      // Success - show confirmation message
+      setIsSubmitted(true);
+      setIsLoading(false);
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const { error: oauthError } = await signInWithOAuth("google");
+      if (oauthError) {
+        setError(oauthError.message || "Failed to sign in with Google");
         setIsLoading(false);
-      } else if (data?.user && data.session) {
-        // Auto-confirmed, redirect to dashboard
-        router.push("/dashboard");
-        router.refresh();
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -86,347 +75,303 @@ export default function RegisterPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    try {
-      const { error: oauthError } = await signInWithOAuth('google');
-      if (oauthError) {
-        setError(oauthError.message || "Failed to sign in with Google.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    }
-  };
-
   const handleLinkedInSignIn = async () => {
     setError(null);
+    setIsLoading(true);
     try {
-      const { error: oauthError } = await signInWithOAuth('linkedin');
+      const { error: oauthError } = await signInWithOAuth("linkedin");
       if (oauthError) {
-        setError(oauthError.message || "Failed to sign in with LinkedIn.");
+        setError(oauthError.message || "Failed to sign in with LinkedIn");
+        setIsLoading(false);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
   };
 
-  const handleResendEmail = async () => {
-    setResending(true);
-    setResendSuccess(false);
-    setError(null);
-    
-    try {
-      const { error: resendError } = await resendEmailConfirmation(formData.email);
-      
-      if (resendError) {
-        setError(resendError.message || "Failed to resend email. Please try again.");
-      } else {
-        setResendSuccess(true);
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setResending(false);
-    }
-  };
-
-  if (success) {
+  // Success state (email confirmation sent)
+  if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-none shadow-none bg-background rounded-2xl">
-            <CardHeader className="p-8 pb-6">
-              <div className="flex justify-center mb-6">
-                <Link href="/" className="flex items-center">
-                  <Image
-                    src="/logo.svg"
-                    alt="Resfolio Logo"
-                    width={120}
-                    height={32}
-                    priority
-                  />
-                </Link>
-              </div>
-              <CardTitle className="text-3xl text-center font-semibold mb-2">
-                Check Your Email
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-8 pb-8">
-              <div className="space-y-6">
-                <p className="text-center text-muted-foreground text-sm leading-relaxed">
-                  To verify your identity, you'll receive an email shortly at <strong className="text-foreground font-semibold">{formData.email}</strong> to activate your account.
+      <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute left-0 top-20 w-64 h-64 opacity-20">
+            <svg className="w-full h-full" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 100 Q50 50 100 100 T180 100" stroke="currentColor" strokeWidth="2" className="text-foreground"/>
+              <rect x="40" y="40" width="60" height="40" stroke="currentColor" strokeWidth="2" fill="none" className="text-foreground"/>
+            </svg>
+          </div>
+        </div>
+
+        <header className="relative z-10 w-full px-6 py-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo.svg" alt="Logo" width={120} height={32} priority />
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="#" className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
+                <Globe className="w-4 h-4" />
+                <span className="hidden sm:inline">Sales@Razor.uk</span>
+              </Link>
+              <Link href="/login" className="text-sm text-foreground hover:text-primary transition-colors">
+                Sign in
+              </Link>
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                Request Demo
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center px-4 py-12 relative z-10">
+          <div className="w-full max-w-md">
+            <div className="bg-card rounded-3xl shadow-lg border border-border p-8 md:p-10">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-foreground mb-2">Check Your Email</h1>
+                <p className="text-sm text-muted-foreground">
+                  To verify your identity, you'll receive an email shortly at <strong className="text-foreground font-semibold">{email}</strong> to confirm your account.
                 </p>
-                
-                <Button
-                  onClick={handleResendEmail}
-                  disabled={resending}
-                  className="w-full h-12"
-                >
-                  {resending ? 'Sending...' : 'Resend Email'}
-                </Button>
+              </div>
 
-                {resendSuccess && (
-                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-sm text-primary text-center">Email sent successfully!</p>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                    <p className="text-sm text-destructive text-center">{error}</p>
-                  </div>
-                )}
+              <div className="space-y-4">
+                <Link href="/login">
+                  <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
+                    Back to Sign In
+                  </Button>
+                </Link>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  Nothing in sight? Check your <span className="text-primary hover:text-primary/80 underline">spam folder</span> or visit our{" "}
+                  Nothing in sight? Check your{" "}
+                  <span className="text-primary hover:text-primary/80 underline">spam folder</span> or visit our{" "}
                   <Link href="/learn" className="text-primary hover:text-primary/80 underline">
                     Learn hub
                   </Link>
                   .
                 </p>
               </div>
-            </CardContent>
-          </Card>
-          
-        </div>
+            </div>
+          </div>
+        </main>
+
+        <footer className="relative z-10 w-full py-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            Copyright @wework 2022 | Privacy Policy
+          </p>
+        </footer>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-card to-muted/20 p-4">
-      <section className="flex w-full max-w-2xl flex-col justify-center px-8 py-8 sm:px-12 lg:px-16">
-        
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+     
 
-        {/* Authentication Tabs */}
-        <Card className="border-none shadow-none bg-[#F7F5F3] rounded-md">
-          <CardHeader className="p-0 px-8 mb-2">
-            <CardTitle className="text-2xl text-center font-semibold">
-              Create Account
-            </CardTitle>
-            <CardDescription className="mb-6 text-center text-muted-foreground">
-              Get started with your free account.
-            </CardDescription>
-            
-          </CardHeader>
+      <main className="flex-1 flex items-center justify-center px-4 py-12 relative z-10">
+        <div className="w-full max-w-md">
+          {/* Register Card */}
+          <div className="bg-card rounded-3xl shadow-lg border border-border p-8 md:p-10">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Create an account</h1>
+              <p className="text-sm text-muted-foreground">
+                Sign up to get started with your portfolio
+              </p>
+            </div>
 
-          <CardContent className="p-0 px-8 ">
             {error && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="mb-6 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive text-center">{error}</p>
               </div>
             )}
-            
-            <form onSubmit={handleSubmit}>
+
+            {/* Social Login Buttons */}
+            <div className="space-y-3 mb-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="h-12 rounded-xl border-border hover:bg-muted flex items-center justify-center gap-2 hover:text-foreground w-full"
+              >
+                <Image src="/icon/google.png" alt="Google" width={20} height={20} />
+                <span className="text-sm font-medium">Google</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleLinkedInSignIn}
+                disabled={isLoading}
+                className="h-12 rounded-xl border-border hover:bg-muted flex items-center justify-center gap-2 hover:text-foreground w-full"
+              >
+                <Image src="/icon/linkedin.png" alt="LinkedIn" width={20} height={20} />
+                <span className="text-sm font-medium">LinkedIn</span>
+              </Button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                  <User className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <div className="flex-1">
-                    <Label htmlFor="firstName" className="mb-1 block text-xs font-medium text-foreground">
-                      First Name
-                    </Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      placeholder="First name"
-                      className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName" className="text-xs font-medium text-foreground mb-2 block">
+                    First Name
+                  </Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
+                    disabled={isLoading}
+                  />
                 </div>
-                <div className="border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                  <User className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <div className="flex-1">
-                    <Label htmlFor="lastName" className="mb-1 block text-xs font-medium text-foreground">
-                      Last Name
-                    </Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      placeholder="Last name"
-                      className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="lastName" className="text-xs font-medium text-foreground mb-2 block">
+                    Last Name
+                  </Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
+                    disabled={isLoading}
+                  />
                 </div>
               </div>
 
-              {/* Email Field */}
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Mail className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="email" className="mb-1 block text-xs font-medium text-foreground">
-                    Email Address
-                  </Label>
+              {/* Email Input */}
+              <div>
+                <Label htmlFor="email" className="text-xs font-medium text-foreground mb-2 block">
+                  Email Address
+                </Label>
+                <div className="relative">
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     placeholder="lilareem@gmail.com"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    value={formData.email}
-                    onChange={handleInputChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={isLoading}
                   />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
               </div>
 
-              {/* Password Field */}
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Lock className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="password" className="mb-1 block text-xs font-medium text-foreground">
-                    Password
-                  </Label>
+              {/* Password Input */}
+              <div>
+                <Label htmlFor="password" className="text-xs font-medium text-foreground mb-2 block">
+                  Password
+                </Label>
+                <div className="relative">
                   <Input
                     id="password"
                     name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="********"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    value={formData.password}
-                    onChange={handleInputChange}
+                    type="password"
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={isLoading}
                   />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  disabled={isLoading}
-                >
-                  {showPassword ? <Eye className="w-5 h-5 text-muted-foreground shrink-0"/> : <EyeClosed className="w-5 h-5 text-muted-foreground shrink-0"/>}
-                </button>
               </div>
 
-              {/* Confirm Password Field */}
-              <div className="mb-4 border border-border rounded-xl p-2 px-4 flex gap-2 items-center bg-card hover:border-primary/50 transition-colors">
-                <Lock className="w-5 h-5 text-muted-foreground shrink-0" />
-                <Separator orientation="vertical" className="h-full w-1 bg-border" />
-                <div className="flex-1">
-                  <Label htmlFor="confirmPassword" className="mb-1 block text-xs font-medium text-foreground">
-                    Confirm Password
-                  </Label>
+              {/* Confirm Password Input */}
+              <div>
+                <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground mb-2 block">
+                  Confirm Password
+                </Label>
+                <div className="relative">
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="********"
-                    className="border-none shadow-none px-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-card"
                     required
                     disabled={isLoading}
                   />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  disabled={isLoading}
-                >
-                  {showConfirmPassword ? <Eye className="w-5 h-5 text-muted-foreground shrink-0"/> : <EyeClosed className="w-5 h-5 text-muted-foreground shrink-0"/>}
-                </button>
               </div>
 
-              {/* Terms Agreement */}
-              <div className="flex items-start space-x-2 mb-4">
-                <Checkbox
-                  id="agreeToTerms"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => setFormData({...formData, agreeToTerms: checked as boolean})}
-                  className="mt-1"
-                  disabled={isLoading}
-                />
-                <Label htmlFor="agreeToTerms" className="text-sm leading-relaxed text-muted-foreground">
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-primary hover:text-primary/80 underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="text-primary hover:text-primary/80 underline">
-                    Privacy Policy
-                  </Link>
-                </Label>
-              </div>
-
+              {/* Sign Up Button */}
               <Button 
                 type="submit"
-                className="mb-4 w-full h-12"
-                disabled={isLoading || !formData.agreeToTerms}
+                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                disabled={isLoading}
               >
-                {isLoading ? 'Creating account...' : 'Continue'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Creating account...
+                  </>
+                ) : (
+                  'Create account'
+                )}
               </Button>
             </form>
 
-            <div className="flex justify-center mx-auto items-center gap-2">
-              <Separator className="w-[20px] h-1 bg-border" />
-              <p className="text-xs text-muted-foreground uppercase">OR</p>
-              <Separator className="w-[20px] h-1 bg-border" />
+            {/* Sign In Link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link 
+                  href="/login"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  Sign in
+                </Link>
+              </p>
             </div>
 
-            {/* Social Logins */}
-            <div className="my-4 flex items-center justify-center space-x-6">
-              <Button
-                size={'icon'}
-                variant={'outline'}
-                className="bg-background rounded-full border-border h-12 w-12 hover:bg-muted transition-colors"
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-              >
-                <Image 
-                  src="/icon/google.png" 
-                  alt="Google Sign In" 
-                  width={20} 
-                  height={20}
-                  priority 
-                />
-              </Button>
-              <Button
-                size={'icon'}
-                variant={'outline'}
-                className="bg-background rounded-full border-border h-12 w-12 hover:bg-muted transition-colors"
-                onClick={handleLinkedInSignIn}
-                disabled={isLoading}
-              >
-                <Image 
-                  src="/icon/linkedin.png" 
-                  alt="LinkedIn Sign In" 
-                  width={24} 
-                  height={24}
-                  priority 
-                />
-              </Button>
+            {/* Help Section */}
+            <div className="mt-6 bg-muted/50 rounded-xl p-4">
+              <p className="text-xs text-muted-foreground text-center">
+                Need help? Explore our{" "}
+                <Link href="/learn" className="text-primary hover:text-primary/80 underline">
+                  Learn hub
+                </Link>
+                .
+              </p>
             </div>
-<div className="my-12 text-center text-sm"> Don't have an account? <Link href="/login" className="text-primary hover:text-primary/80 underline">Sign in</Link></div>
-            <p className="text-xs max-w-sm mx-auto text-center text-muted-foreground">
-              Join the hundreds of developers to create their portfolio. 
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+          </div>
+        </div>
+      </main>
+
+      <footer className="relative z-10 w-full py-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Copyright @wework 2022 | Privacy Policy
+        </p>
+      </footer>
     </div>
   );
 }

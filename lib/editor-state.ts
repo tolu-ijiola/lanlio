@@ -4,14 +4,17 @@ import { ComponentType } from './component-registry';
 export interface BaseComponentData {
   id: string;
   type: ComponentType;
-  tabletStyles?: React.CSSProperties;
-  mobileStyles?: React.CSSProperties;
 }
 
 export interface TextComponentData extends BaseComponentData {
   type: 'header' | 'text';
   content: string;
   alignment?: 'left' | 'center' | 'right';
+  fontSize?: string;
+  fontColor?: string;
+  fontWeight?: 'normal' | 'bold';
+  fontStyle?: 'normal' | 'italic';
+  textDecoration?: 'none' | 'underline';
 }
 
 export interface ButtonComponentData extends BaseComponentData {
@@ -21,18 +24,6 @@ export interface ButtonComponentData extends BaseComponentData {
     link: string;
     variant?: 'default' | 'outline' | 'ghost' | 'destructive';
     icon?: string;
-    hasIcon?: boolean;
-    iconPosition?: 'left' | 'right';
-    openInNewTab?: boolean;
-    displayMode?: 'text' | 'icon' | 'both';
-    iconPlacement?: 'left' | 'right';
-    iconColor?: string;
-    customIcon?: string;
-    width?: string;
-    height?: string;
-    paddingX?: string;
-    paddingY?: string;
-    contentAlign?: 'left' | 'center' | 'right';
   }>;
   alignment?: 'left' | 'center' | 'right';
 }
@@ -41,6 +32,19 @@ export interface ImageComponentData extends BaseComponentData {
   type: 'image';
   src: string;
   alt?: string;
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  objectPosition?: string;
+  borderWidth?: string;
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double' | 'none';
+  borderColor?: string;
+  borderRadius?: string;
+  borderRadiusTopLeft?: string;
+  borderRadiusTopRight?: string;
+  borderRadiusBottomRight?: string;
+  borderRadiusBottomLeft?: string;
+  opacity?: number;
+  backgroundColor?: string;
+  anchorName?: string;
 }
 
 export interface VideoComponentData extends BaseComponentData {
@@ -51,13 +55,12 @@ export interface VideoComponentData extends BaseComponentData {
 
 export interface EmbedComponentData extends BaseComponentData {
   type: 'embed';
-  url: string;
-  title?: string;
-}
-
-export interface HtmlComponentData extends BaseComponentData {
-  type: 'html';
-  code: string;
+  embedType?: 'website' | 'map' | 'code';
+  url?: string;
+  code?: string;
+  mapAddress?: string;
+  width?: string;
+  height?: string;
 }
 
 export interface ProfileComponentData extends BaseComponentData {
@@ -67,6 +70,16 @@ export interface ProfileComponentData extends BaseComponentData {
   title: string;
   summary: string;
   avatar?: string;
+  avatarBorderRadius?: string;
+  avatarSize?: string;
+  nameColor?: string;
+  nameSize?: string;
+  jobTitleColor?: string;
+  jobTitleSize?: string;
+  titleColor?: string;
+  titleSize?: string;
+  summaryColor?: string;
+  summarySize?: string;
 }
 
 export interface GalleryComponentData extends BaseComponentData {
@@ -74,16 +87,13 @@ export interface GalleryComponentData extends BaseComponentData {
   images: Array<{ src: string; alt?: string }>;
   mode?: 'grid' | 'marquee' | 'carousel';
   direction?: 'left' | 'right';
-  columns?: 2 | 3 | 4 | 5 | 6;
+  columns?: 2 | 3 | 4;
+  carouselImagesToShow?: number;
+  carouselAutoPlay?: boolean;
+  aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | 'auto';
+  spacing?: string;
+  speed?: number;
   maxImages?: number;
-  aspectRatio?: '1:1' | '16:9' | '4:3' | '3:2' | 'auto';
-  spacing?: number; // in pixels or rem
-  speed?: number; // animation speed in seconds (for marquee/carousel)
-  // Carousel specific
-  carouselMoveFull?: boolean; // move by full slide or by pixels
-  carouselMoveByPx?: number; // pixels to move if not full
-  carouselImagesToShow?: number; // how many images to show at once
-  carouselAutoPlay?: boolean; // auto-rotate carousel
 }
 
 export interface ReviewComponentData extends BaseComponentData {
@@ -105,7 +115,10 @@ export interface SkillsComponentData extends BaseComponentData {
   type: 'skills';
   skills: string[];
   alignment?: 'left' | 'center' | 'right';
-  variant?: 'pill' | 'badge' | 'minimal' | 'outlined';
+  variant?: 'normal' | 'pills' | 'outline' | 'list';
+  layout?: 'horizontal' | 'vertical' | 'grid' | 'marquee';
+  speed?: number;
+  gap?: string;
 }
 
 export interface ExperienceComponentData extends BaseComponentData {
@@ -168,24 +181,6 @@ export interface ContactFormComponentData extends BaseComponentData {
   submitText: string;
   alignment?: 'left' | 'center' | 'right';
   style?: 'default' | 'minimal' | 'bordered' | 'gradient';
-  width?: string; // Form width (e.g., "100%", "800px", "max-w-2xl")
-  // Header options
-  showHeader?: boolean;
-  headerTitle?: string;
-  headerSubtitle?: string;
-  // Profile card options
-  showProfileCard?: boolean;
-  profileCardName?: string;
-  profileCardTitle?: string;
-  profileCardImage?: string;
-  profileCardDescription?: string;
-  layout?: 'single' | 'split';
-  // Styling options
-  buttonColor?: string;
-  buttonTextColor?: string;
-  fieldSpacing?: string;
-  shadow?: string;
-  successMessage?: string;
 }
 
 export interface ContactDetailsComponentData extends BaseComponentData {
@@ -196,15 +191,6 @@ export interface ContactDetailsComponentData extends BaseComponentData {
   website?: string;
   availability?: string;
   variant?: 'default' | 'minimal' | 'card' | 'inline';
-  alignment?: 'left' | 'center' | 'right';
-  iconStyle?: 'default' | 'circle' | 'square' | 'none';
-  customFields?: Array<{
-    id: string;
-    icon: string;
-    label: string;
-    value: string;
-    type: 'text' | 'link' | 'email' | 'phone';
-  }>;
 }
 
 export interface LanguageComponentData extends BaseComponentData {
@@ -221,13 +207,8 @@ export interface GitHubComponentData extends BaseComponentData {
 
 export interface SpotifyComponentData extends BaseComponentData {
   type: 'spotify';
-  playlistUrl?: string;
+  playlistUrl: string;
   title?: string;
-  playlists?: Array<{
-    url: string;
-    title?: string;
-  }>;
-  layout?: 'grid' | 'list';
 }
 
 export interface LinkBlockComponentData extends BaseComponentData {
@@ -237,7 +218,6 @@ export interface LinkBlockComponentData extends BaseComponentData {
     url: string;
     description?: string;
   }>;
-  layout?: 'grid' | 'side-by-side';
 }
 
 export interface ProjectsComponentData extends BaseComponentData {
@@ -256,30 +236,6 @@ export interface ProfilePhotoComponentData extends BaseComponentData {
   image?: string;
   rounded?: 'none' | 'small' | 'full';
   alignment?: 'left' | 'center' | 'right';
-  size?: 'sm' | 'md' | 'lg';
-  showBadge?: boolean;
-  badgeColor?: string;
-}
-
-export interface LayoutComponentData extends BaseComponentData {
-  type: 'layout';
-  layoutType: 'single' | 'double' | 'three';
-  direction?: 'horizontal' | 'vertical';
-  isLayout: true;
-  title?: string;
-  backgroundType?: 'none' | 'color' | 'image' | 'video' | 'url';
-  backgroundColor?: string;
-  backgroundImage?: string;
-  backgroundVideo?: string;
-  backgroundUrl?: string;
-  backgroundOverlay?: boolean;
-  backgroundOverlayEnabled?: boolean;
-  backgroundOverlayColor?: string;
-  backgroundOverlayOpacity?: number;
-  height?: string;
-  columnWidths?: number[]; // Array of percentages, e.g. [50, 50] or [30, 70]
-  columnAlignments?: string[]; // Array of alignment values, e.g. ['flex-start', 'center', 'flex-end']
-  styles?: React.CSSProperties;
 }
 
 export interface ToolsComponentData extends BaseComponentData {
@@ -292,25 +248,16 @@ export interface SocialMediaComponentData extends BaseComponentData {
   links: Array<{
     platform: string;
     url: string;
-    customIcon?: string;
   }>;
   alignment?: 'left' | 'center' | 'right';
   arrangement?: 'horizontal' | 'vertical';
   displayMode?: 'icons-only' | 'icons-text' | 'text-only';
-  size?: 'sm' | 'md' | 'lg';
-  buttonStyle?: 'outline' | 'filled';
-  shape?: 'pill' | 'rounded' | 'square';
-  iconOrientation?: 'inline' | 'stacked';
-  lineMode?: 'auto' | 'single';
-  backgroundColor?: string;
-  iconColor?: string;
-  textColor?: string;
 }
 
 export interface NavigationMenuItem {
   id: string;
   label: string;
-  targetType: 'page' | 'link' | 'email' | 'phone';
+  targetType: 'anchor' | 'link' | 'email' | 'phone';
   targetValue: string;
 }
 
@@ -319,7 +266,6 @@ export interface NavigationComponentData extends BaseComponentData {
   variant: 'logo-text' | 'logo-only' | 'text-only';
   brandText: string;
   logoImage?: string;
-  tagline?: string;
   menuDisplay: 'inline' | 'hamburger';
   menuItems: NavigationMenuItem[];
   isSticky?: boolean;
@@ -328,9 +274,8 @@ export interface NavigationComponentData extends BaseComponentData {
     label: string;
     iconMode: 'text' | 'icon' | 'both';
     icon?: string;
-    iconPlacement?: 'left' | 'right';
     style: 'solid' | 'outline' | 'ghost';
-    linkType: 'page' | 'link' | 'email' | 'phone';
+    linkType: 'anchor' | 'link' | 'email' | 'phone';
     linkValue: string;
   };
 }
@@ -352,7 +297,6 @@ export type ComponentData =
   | ImageComponentData
   | VideoComponentData
   | EmbedComponentData
-  | HtmlComponentData
   | ProfileComponentData
   | GalleryComponentData
   | NavigationComponentData
@@ -370,7 +314,6 @@ export type ComponentData =
   | LinkBlockComponentData
   | ProjectsComponentData
   | ProfilePhotoComponentData
-  | LayoutComponentData
   | ToolsComponentData
   | SocialMediaComponentData
   | ContactDetailsComponentData
@@ -405,6 +348,8 @@ export function getDefaultComponentData(type: ComponentType, id: string): Compon
       return { id, type: 'image', src: '', alt: 'Image' };
     case 'video':
       return { id, type: 'video', embedUrl: '', title: '' };
+    case 'embed':
+      return { id, type: 'embed', embedType: 'website', url: '' };
     case 'profile':
       return {
         id,
@@ -416,10 +361,6 @@ export function getDefaultComponentData(type: ComponentType, id: string): Compon
       };
     case 'gallery':
       return { id, type: 'gallery', images: [], mode: 'grid', direction: 'left' };
-    case 'embed':
-      return { id, type: 'embed', url: '', title: 'Embed' };
-    case 'html':
-      return { id, type: 'html', code: '<div style="padding: 20px; background: #f0f0f0; border-radius: 8px; text-align: center;">\n  <h3>Hello World</h3>\n  <p>Edit this HTML code in the inspector.</p>\n</div>' };
     case 'navigation':
       return {
         id,
@@ -429,17 +370,16 @@ export function getDefaultComponentData(type: ComponentType, id: string): Compon
         menuDisplay: 'inline',
         isSticky: false,
         menuItems: [
-          { id: `${id}-item-1`, label: 'About', targetType: 'page', targetValue: '#about' },
-          { id: `${id}-item-2`, label: 'Work', targetType: 'page', targetValue: '#work' },
-          { id: `${id}-item-3`, label: 'Contact', targetType: 'page', targetValue: '#contact' },
+          { id: `${id}-item-1`, label: 'About', targetType: 'anchor', targetValue: '#about' },
+          { id: `${id}-item-2`, label: 'Work', targetType: 'anchor', targetValue: '#work' },
+          { id: `${id}-item-3`, label: 'Contact', targetType: 'anchor', targetValue: '#contact' },
         ],
         button: {
           enabled: true,
           label: 'Hire Me',
           iconMode: 'text',
-          iconPlacement: 'left',
           style: 'solid',
-          linkType: 'page',
+          linkType: 'anchor',
           linkValue: '#contact',
         },
       } as NavigationComponentData;
@@ -468,76 +408,26 @@ export function getDefaultComponentData(type: ComponentType, id: string): Compon
         ],
         submitText: 'Send Message',
         alignment: 'left',
-        width: 'max-w-5xl',
-        showHeader: true,
-        headerTitle: 'Love to hear from you, Get in touch 👋',
         style: 'default',
       };
     case 'contact-details':
-      return { 
-        id, 
-        type: 'contact-details', 
-        variant: 'default',
-        alignment: 'left',
-        iconStyle: 'default',
-        customFields: []
-      };
+      return { id, type: 'contact-details', variant: 'default' };
     case 'languages':
       return { id, type: 'languages', languages: [] };
     case 'github':
-      return { id, type: 'github', username: '', showRepos: false };
+      return { id, type: 'github', username: '', showRepos: true, showCommits: true };
     case 'spotify':
-      return { id, type: 'spotify', playlists: [], layout: 'grid' };
+      return { id, type: 'spotify', playlistUrl: '', title: '' };
     case 'link-block':
-      return { id, type: 'link-block', links: [], layout: 'grid' };
+      return { id, type: 'link-block', links: [] };
     case 'projects':
       return { id, type: 'projects', projects: [], mode: 'grid' };
     case 'profile-photo':
-      return {
-        id,
-        type: 'profile-photo',
-        rounded: 'full',
-        alignment: 'center',
-        size: 'md',
-        showBadge: true,
-        badgeColor: '#22c55e',
-      };
+      return { id, type: 'profile-photo', rounded: 'full', alignment: 'center' };
     case 'tools':
       return { id, type: 'tools', tools: [] };
     case 'social-media':
-      return {
-        id,
-        type: 'social-media',
-        links: [
-          { platform: 'GitHub', url: 'https://github.com/username' },
-          { platform: 'LinkedIn', url: 'https://linkedin.com/in/username' },
-        ],
-        alignment: 'center',
-        arrangement: 'horizontal',
-        displayMode: 'icons-text',
-        size: 'md',
-        buttonStyle: 'filled',
-        shape: 'pill',
-        iconOrientation: 'inline',
-        lineMode: 'auto',
-        backgroundColor: '#ffffff',
-        iconColor: '#0f172a',
-        textColor: '#0f172a',
-      };
-    case 'layout':
-      return {
-        id,
-        type: 'layout',
-        layoutType: 'single',
-        direction: 'vertical',
-        isLayout: true,
-        backgroundType: 'none',
-        title: '',
-        height: 'auto',
-        backgroundOverlay: false,
-        backgroundOverlayColor: '#000000',
-        backgroundOverlayOpacity: 0.5,
-      };
+      return { id, type: 'social-media', links: [], alignment: 'center', arrangement: 'horizontal', displayMode: 'icons-text' };
     default:
       return { id, type };
   }
